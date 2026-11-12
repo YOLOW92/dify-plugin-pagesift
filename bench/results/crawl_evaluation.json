@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "job_id": "b10220de-7c72-4fb9-ae43-7a2dab870888",
+  "submitted_limit": 10,
+  "pages_retrieved": 5,
+  "deduplicated": true,
+  "loop_handled": true,
+  "elapsed_s": 0.508,
+  "crawled_urls": [
+    "http://127.0.0.1:8800/crawl_fixture/index.html",
+    "http://127.0.0.1:8800/crawl_fixture/page1.html",
+    "http://127.0.0.1:8800/crawl_fixture/page2.html",
+    "http://127.0.0.1:8800/crawl_fixture/page3.html",
+    "http://127.0.0.1:8800/crawl_fixture/loop.html"
+  ]
+}

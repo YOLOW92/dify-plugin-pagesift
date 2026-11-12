@@ -75,12 +75,22 @@ def sample_pagesift() -> tuple[float, float, dict]:
     mem = cpu = 0.0
     parts = {}
     now = time.monotonic()
+    total_io_read = 0
+    total_io_write = 0
     for pid in _pagesift_pids():
         try:
             rss = int(Path(f"/proc/{pid}/statm").read_text().split()[1]) * PAGE / 1048576
             st = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
             ticks = int(st[11]) + int(st[12])
-        except (FileNotFoundError, ProcessLookupError, IndexError):
+            # Check I/O if readable
+            io_p = Path(f"/proc/{pid}/io")
+            if io_p.exists():
+                for line in io_p.read_text().splitlines():
+                    if line.startswith("read_bytes:"):
+                        total_io_read += int(line.split()[1])
+                    elif line.startswith("write_bytes:"):
+                        total_io_write += int(line.split()[1])
+        except (FileNotFoundError, ProcessLookupError, IndexError, PermissionError):
             continue
         mem += rss
         parts[str(pid)] = round(rss, 1)
@@ -89,6 +99,9 @@ def sample_pagesift() -> tuple[float, float, dict]:
             if now > pt:
                 cpu += (ticks - pticks) / TICK / (now - pt) * 100
         _prev[pid] = (now, ticks)
+    if total_io_read > 0 or total_io_write > 0:
+        parts["_io_read_mb"] = round(total_io_read / 1048576, 2)
+        parts["_io_write_mb"] = round(total_io_write / 1048576, 2)
     return mem, cpu, parts
 
 

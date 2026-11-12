@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import math
+import random
 import re
 import statistics
 import time
@@ -22,7 +24,7 @@ ENGINES = {
 }
 
 # URL prefix each engine uses to reach the local corpus server. Firecrawl runs in Docker,
-# so it reaches the host through the docker0 gateway.
+# so it reaches the host through host.docker.internal.
 CORPUS_BASE = {
     "pagesift": "http://127.0.0.1:8800",
     "firecrawl": "http://host.docker.internal:8800",
@@ -39,17 +41,17 @@ def post_json(url: str, payload: dict, timeout: float = 120.0, headers: dict | N
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read()
-            ms = (time.perf_counter() - t0) * 1000
+            ms = (time.perf_counter() - t0) * 1000.0
             return resp.status, json.loads(raw), ms, ""
     except urllib.error.HTTPError as e:
-        ms = (time.perf_counter() - t0) * 1000
+        ms = (time.perf_counter() - t0) * 1000.0
         try:
             data = json.loads(e.read())
         except Exception:
             data = None
         return e.code, data, ms, f"HTTP {e.code}"
-    except Exception as e:  # timeouts, refused connections
-        ms = (time.perf_counter() - t0) * 1000
+    except Exception as e:
+        ms = (time.perf_counter() - t0) * 1000.0
         return 0, None, ms, f"{type(e).__name__}: {e}"
 
 
@@ -101,25 +103,80 @@ def word_prf(pred: str, ref: str) -> tuple[float, float, float]:
 
 
 def pct(values: list[float], q: float) -> float:
-    """Nearest-rank percentile (q in 0..100)."""
+    """
+    Standard Nearest-Rank Percentile (k = ceil(p * n) - 1, 0-indexed).
+    Satisfies NIST/ISO specifications and avoids small-sample underestimation.
+    """
     if not values:
         return float("nan")
     s = sorted(values)
-    k = max(0, min(len(s) - 1, int(round(q / 100 * len(s) + 0.5)) - 1))
+    n = len(s)
+    k = max(0, min(n - 1, int(math.ceil((q / 100.0) * n)) - 1))
     return s[k]
+
+
+def bootstrap_ci(values: list[float], n_resamples: int = 2000, ci: float = 0.95) -> tuple[float, float]:
+    """Calculate non-parametric bootstrap confidence interval for the mean."""
+    if not values:
+        return (float("nan"), float("nan"))
+    if len(values) == 1:
+        return (values[0], values[0])
+
+    n = len(values)
+    means = []
+    # Deterministic pseudo-random seed for strict reproducibility
+    rng = random.Random(42)
+    for _ in range(n_resamples):
+        sample = [rng.choice(values) for _ in range(n)]
+        means.append(statistics.fmean(sample))
+
+    means.sort()
+    lower_idx = int(((1.0 - ci) / 2.0) * n_resamples)
+    upper_idx = int((ci + (1.0 - ci) / 2.0) * n_resamples) - 1
+    lower_idx = max(0, min(n_resamples - 1, lower_idx))
+    upper_idx = max(0, min(n_resamples - 1, upper_idx))
+    return round(means[lower_idx], 4), round(means[upper_idx], 4)
 
 
 def summary(values: list[float]) -> dict:
     if not values:
         return {"n": 0}
+    ci_low, ci_high = bootstrap_ci(values)
     return {
         "n": len(values),
-        "mean": statistics.fmean(values),
-        "p50": pct(values, 50),
-        "p90": pct(values, 90),
-        "p99": pct(values, 99),
-        "min": min(values),
-        "max": max(values),
+        "mean": round(statistics.fmean(values), 3),
+        "ci95": [ci_low, ci_high],
+        "p50": round(pct(values, 50), 3),
+        "p90": round(pct(values, 90), 3),
+        "p95": round(pct(values, 95), 3),
+        "p99": round(pct(values, 99), 3),
+        "min": round(min(values), 3),
+        "max": round(max(values), 3),
+        "stdev": round(statistics.stdev(values), 3) if len(values) > 1 else 0.0,
+    }
+
+
+def paired_difference_test(pairs: list[tuple[float, float]]) -> dict:
+    """
+    Perform paired difference analysis on matched samples [(a_i, b_i)].
+    Returns mean diff, paired standard error, and estimated t-statistic.
+    """
+    if not pairs:
+        return {"n": 0}
+    diffs = [a - b for a, b in pairs]
+    n = len(diffs)
+    mean_diff = statistics.fmean(diffs)
+    s_diff = statistics.stdev(diffs) if n > 1 else 0.0
+    se = s_diff / math.sqrt(n) if n > 0 else 0.0
+    t_stat = mean_diff / se if se > 0 else float("inf")
+    ci_low, ci_high = bootstrap_ci(diffs)
+
+    return {
+        "n": n,
+        "mean_difference": round(mean_diff, 4),
+        "std_error": round(se, 4),
+        "t_statistic": round(t_stat, 2),
+        "ci95": [ci_low, ci_high],
     }
 
 

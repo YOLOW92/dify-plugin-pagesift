@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-11-12T09:32:20Z",
+  "total_documents": 5,
+  "successful": 5,
+  "results": [
+    {
+      "filename": "sample_brief.docx",
+      "format": "DOCX",
+      "size_bytes": 987,
+      "ok": true,
+      "latency_ms": 8.687,
+      "char_count": 98,
+      "markdown_preview": "PageSift Technical Whitepaper\n\nZero-dependency high performance document extraction architecture.\n"
+    },
+    {
+      "filename": "sample_financial.csv",
+      "format": "CSV",
+      "size_bytes": 1882,
+      "ok": true,
+      "latency_ms": 0.401,
+      "char_count": 2245,
+      "markdown_preview": "| Year | Quarter | Revenue (USD) | Net Income (USD) | Margin | Notes |\n| --- | --- | --- | --- | --- | --- |\n| 2020 | Q1 | 202025.50 | 40405.20 | 20.1% | Audited financial performance for Q1 2020 |\n| "
+    },
+    {
+      "filename": "sample_presentation.pptx",
+      "format": "PPTX",
+      "size_bytes": 1610,
+      "ok": true,
+      "latency_ms": 0.324,
+      "char_count": 45,
+      "markdown_preview": "<!-- Slide 1 -->\n\nPageSift Multi-format Deck\n"
+    },
+    {
+      "filename": "sample_report.pdf",
+      "format": "PDF",
+      "size_bytes": 694,
+      "ok": true,
+      "latency_ms": 3.058,
+      "char_count": 98,
+      "markdown_preview": "# PageSift High Performance Document Ingestion\n\nSub-millisecond PDF parsing powered by pure Rust.\n"
+    },
+    {
+      "filename": "sample_sheet.xlsx",
+      "format": "XLSX",
+      "size_bytes": 1655,
+      "ok": true,
+      "latency_ms": 0.486,
+      "char_count": 91,
+      "markdown_preview": "## Sheet1\n\n| Item | Score |\n| --- | --- |\n| PageSift Speed | 99.9 |\n| Fidelity F1 | 98.5 |\n"
+    }
+  ]
+}

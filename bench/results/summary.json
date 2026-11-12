@@ -1,170 +1,679 @@
 {
-  "pagesift": {
-    "run_name": "pagesift-wcxb_sample50-v2-c1",
-    "engine": "pagesift",
-    "set": "wcxb_sample50",
-    "concurrency": 1,
-    "total_requests": 52,
-    "successful_requests": 51,
-    "success_rate": 98.08,
-    "wall_time_s": 1.933,
-    "qps": 26.38,
-    "latency_ms": {
-      "n": 51,
-      "mean": 37.691607843137255,
-      "p50": 4.564,
-      "p90": 7.054,
-      "p99": 1690.546,
-      "min": 1.551,
-      "max": 1690.546
+  "runs": {
+    "firecrawl-wcxb-c1-smoke": {
+      "run_name": "firecrawl-wcxb-c1-smoke",
+      "engine": "firecrawl",
+      "set": "wcxb",
+      "concurrency": 1,
+      "total_requests": 3,
+      "successful_requests": 0,
+      "success_rate": 0.0,
+      "wall_time_s": 0.087,
+      "qps": 0.0,
+      "latency_ms": {
+        "n": 0
+      },
+      "resources": {
+        "peak_mem_mb": null,
+        "avg_mem_mb": null,
+        "peak_cpu_pct": null
+      }
     },
-    "quality": {
-      "evaluated_pages": 51,
-      "precision": 0.7848,
-      "recall": 0.875,
-      "f1": 0.7977,
-      "by_type": {
-        "article": {
-          "count": 8,
-          "precision": 0.9672,
-          "recall": 0.9656,
-          "f1": 0.9642
+    "firecrawl-wcxb-v2-c1-test5": {
+      "run_name": "firecrawl-wcxb-v2-c1-test5",
+      "engine": "firecrawl",
+      "set": "wcxb",
+      "concurrency": 1,
+      "total_requests": 5,
+      "successful_requests": 5,
+      "success_rate": 100.0,
+      "wall_time_s": 16.408,
+      "qps": 0.3,
+      "latency_ms": {
+        "n": 5,
+        "mean": 3281.169,
+        "ci95": [
+          1882.4288,
+          4728.5346
+        ],
+        "p50": 2941.189,
+        "p90": 5427.353,
+        "p95": 5427.353,
+        "p99": 5427.353,
+        "min": 1435.392,
+        "max": 5427.353,
+        "stdev": 1829.887
+      },
+      "resources": {
+        "peak_mem_mb": null,
+        "avg_mem_mb": null,
+        "peak_cpu_pct": null
+      }
+    },
+    "firecrawl-wcxb_sample50-v2-c1": {
+      "run_name": "firecrawl-wcxb_sample50-v2-c1",
+      "engine": "firecrawl",
+      "set": "wcxb_sample50",
+      "concurrency": 1,
+      "total_requests": 52,
+      "successful_requests": 50,
+      "success_rate": 96.15,
+      "wall_time_s": 155.606,
+      "qps": 0.32,
+      "latency_ms": {
+        "n": 50,
+        "mean": 3087.762,
+        "ci95": [
+          2068.6888,
+          4529.8923
+        ],
+        "p50": 2019.396,
+        "p90": 4960.666,
+        "p95": 10744.052,
+        "p99": 29881.04,
+        "min": 70.729,
+        "max": 29881.04,
+        "stdev": 4565.396
+      },
+      "resources": {
+        "peak_mem_mb": 2879.4,
+        "avg_mem_mb": 2740.8,
+        "peak_cpu_pct": 280.5
+      }
+    },
+    "firecrawl-wcxb_sample50-v2-c4": {
+      "run_name": "firecrawl-wcxb_sample50-v2-c4",
+      "engine": "firecrawl",
+      "set": "wcxb_sample50",
+      "concurrency": 4,
+      "total_requests": 52,
+      "successful_requests": 50,
+      "success_rate": 96.15,
+      "wall_time_s": 28.01,
+      "qps": 1.79,
+      "latency_ms": {
+        "n": 50,
+        "mean": 1986.983,
+        "ci95": [
+          1544.8691,
+          2473.7293
+        ],
+        "p50": 1524.817,
+        "p90": 4363.728,
+        "p95": 5093.423,
+        "p99": 8452.841,
+        "min": 143.812,
+        "max": 8452.841,
+        "stdev": 1715.672
+      },
+      "resources": {
+        "peak_mem_mb": 3017.4,
+        "avg_mem_mb": 2893.4,
+        "peak_cpu_pct": 447.6
+      }
+    },
+    "pagesift-wcxb-c1-smoke": {
+      "run_name": "pagesift-wcxb-c1-smoke",
+      "engine": "pagesift",
+      "set": "wcxb",
+      "concurrency": 1,
+      "total_requests": 3,
+      "successful_requests": 0,
+      "success_rate": 0.0,
+      "wall_time_s": 0.008,
+      "qps": 0.0,
+      "latency_ms": {
+        "n": 0
+      },
+      "resources": {
+        "peak_mem_mb": null,
+        "avg_mem_mb": null,
+        "peak_cpu_pct": null
+      }
+    },
+    "pagesift-wcxb-v2-c1-test5": {
+      "run_name": "pagesift-wcxb-v2-c1-test5",
+      "engine": "pagesift",
+      "set": "wcxb",
+      "concurrency": 1,
+      "total_requests": 5,
+      "successful_requests": 5,
+      "success_rate": 100.0,
+      "wall_time_s": 4.017,
+      "qps": 1.24,
+      "latency_ms": {
+        "n": 5,
+        "mean": 803.038,
+        "ci95": [
+          407.2472,
+          1007.9034
+        ],
+        "p50": 998.239,
+        "p90": 1016.676,
+        "p95": 1016.676,
+        "p99": 1016.676,
+        "min": 11.624,
+        "max": 1016.676,
+        "stdev": 442.563
+      },
+      "resources": {
+        "peak_mem_mb": null,
+        "avg_mem_mb": null,
+        "peak_cpu_pct": null
+      }
+    },
+    "pagesift-wcxb-v2-c1-test5_nopolite": {
+      "run_name": "pagesift-wcxb-v2-c1-test5_nopolite",
+      "engine": "pagesift",
+      "set": "wcxb",
+      "concurrency": 1,
+      "total_requests": 5,
+      "successful_requests": 5,
+      "success_rate": 100.0,
+      "wall_time_s": 0.04,
+      "qps": 124.65,
+      "latency_ms": {
+        "n": 5,
+        "mean": 7.725,
+        "ci95": [
+          3.7844,
+          13.8318
+        ],
+        "p50": 4.311,
+        "p90": 20.179,
+        "p95": 20.179,
+        "p99": 20.179,
+        "min": 3.153,
+        "max": 20.179,
+        "stdev": 7.109
+      },
+      "resources": {
+        "peak_mem_mb": null,
+        "avg_mem_mb": null,
+        "peak_cpu_pct": null
+      }
+    },
+    "pagesift-wcxb_sample50-v2-c1": {
+      "run_name": "pagesift-wcxb_sample50-v2-c1",
+      "engine": "pagesift",
+      "set": "wcxb_sample50",
+      "concurrency": 1,
+      "total_requests": 52,
+      "successful_requests": 51,
+      "success_rate": 98.08,
+      "wall_time_s": 1.933,
+      "qps": 26.38,
+      "latency_ms": {
+        "n": 51,
+        "mean": 37.692,
+        "ci95": [
+          4.1941,
+          103.9089
+        ],
+        "p50": 4.564,
+        "p90": 7.054,
+        "p95": 9.576,
+        "p99": 1690.546,
+        "min": 1.551,
+        "max": 1690.546,
+        "stdev": 236.084
+      },
+      "resources": {
+        "peak_mem_mb": 272.7,
+        "avg_mem_mb": 111.5,
+        "peak_cpu_pct": 46.0
+      }
+    },
+    "pagesift-wcxb_sample50-v2-c4": {
+      "run_name": "pagesift-wcxb_sample50-v2-c4",
+      "engine": "pagesift",
+      "set": "wcxb_sample50",
+      "concurrency": 4,
+      "total_requests": 52,
+      "successful_requests": 51,
+      "success_rate": 98.08,
+      "wall_time_s": 0.055,
+      "qps": 919.47,
+      "latency_ms": {
+        "n": 51,
+        "mean": 3.975,
+        "ci95": [
+          3.3404,
+          4.7222
+        ],
+        "p50": 3.344,
+        "p90": 6.013,
+        "p95": 11.049,
+        "p99": 13.771,
+        "min": 1.376,
+        "max": 13.771,
+        "stdev": 2.6
+      },
+      "resources": {
+        "peak_mem_mb": 46.1,
+        "avg_mem_mb": 46.1,
+        "peak_cpu_pct": 0.0
+      }
+    }
+  },
+  "cohort_comparison": {
+    "cohort_a_independent": {
+      "pagesift": {
+        "evaluated_pages": 51,
+        "precision": 0.7848,
+        "recall": 0.875,
+        "f1": 0.7977,
+        "latency_ms": {
+          "n": 51,
+          "mean": 37.692,
+          "ci95": [
+            4.1941,
+            103.9089
+          ],
+          "p50": 4.564,
+          "p90": 7.054,
+          "p95": 9.576,
+          "p99": 1690.546,
+          "min": 1.551,
+          "max": 1690.546,
+          "stdev": 236.084
         },
-        "collection": {
-          "count": 7,
-          "precision": 0.6745,
-          "recall": 0.934,
-          "f1": 0.7376
+        "by_type": {
+          "article": {
+            "count": 8,
+            "precision": 0.9672,
+            "recall": 0.9656,
+            "f1": 0.9642
+          },
+          "collection": {
+            "count": 7,
+            "precision": 0.6745,
+            "recall": 0.934,
+            "f1": 0.7376
+          },
+          "documentation": {
+            "count": 7,
+            "precision": 0.9575,
+            "recall": 0.9884,
+            "f1": 0.9709
+          },
+          "forum": {
+            "count": 8,
+            "precision": 0.5741,
+            "recall": 0.8445,
+            "f1": 0.6673
+          },
+          "listing": {
+            "count": 6,
+            "precision": 0.6559,
+            "recall": 0.7037,
+            "f1": 0.5878
+          },
+          "product": {
+            "count": 7,
+            "precision": 0.8434,
+            "recall": 0.8425,
+            "f1": 0.8119
+          },
+          "service": {
+            "count": 8,
+            "precision": 0.8038,
+            "recall": 0.8209,
+            "f1": 0.808
+          }
+        }
+      },
+      "firecrawl": {
+        "evaluated_pages": 50,
+        "precision": 0.6798,
+        "recall": 0.9393,
+        "f1": 0.7621,
+        "latency_ms": {
+          "n": 50,
+          "mean": 3087.762,
+          "ci95": [
+            2068.6888,
+            4529.8923
+          ],
+          "p50": 2019.396,
+          "p90": 4960.666,
+          "p95": 10744.052,
+          "p99": 29881.04,
+          "min": 70.729,
+          "max": 29881.04,
+          "stdev": 4565.396
         },
-        "documentation": {
-          "count": 7,
-          "precision": 0.9575,
-          "recall": 0.9884,
-          "f1": 0.9709
-        },
-        "forum": {
-          "count": 8,
-          "precision": 0.5741,
-          "recall": 0.8445,
-          "f1": 0.6673
-        },
-        "listing": {
-          "count": 6,
-          "precision": 0.6559,
-          "recall": 0.7037,
-          "f1": 0.5878
-        },
-        "product": {
-          "count": 7,
-          "precision": 0.8434,
-          "recall": 0.8425,
-          "f1": 0.8119
-        },
-        "service": {
-          "count": 8,
-          "precision": 0.8038,
-          "recall": 0.8209,
-          "f1": 0.808
+        "by_type": {
+          "article": {
+            "count": 8,
+            "precision": 0.8786,
+            "recall": 0.9999,
+            "f1": 0.9329
+          },
+          "collection": {
+            "count": 7,
+            "precision": 0.5925,
+            "recall": 1.0,
+            "f1": 0.6957
+          },
+          "documentation": {
+            "count": 7,
+            "precision": 0.9191,
+            "recall": 0.9951,
+            "f1": 0.9496
+          },
+          "forum": {
+            "count": 7,
+            "precision": 0.5391,
+            "recall": 0.9999,
+            "f1": 0.6921
+          },
+          "listing": {
+            "count": 7,
+            "precision": 0.6193,
+            "recall": 0.854,
+            "f1": 0.6773
+          },
+          "product": {
+            "count": 7,
+            "precision": 0.6051,
+            "recall": 0.9908,
+            "f1": 0.7364
+          },
+          "service": {
+            "count": 7,
+            "precision": 0.5766,
+            "recall": 0.7264,
+            "f1": 0.6261
+          }
         }
       }
     },
-    "resources": {
-      "peak_mem_mb": 272.7,
-      "avg_mem_mb": 111.5,
-      "peak_cpu_pct": 46.0,
-      "avg_cpu_pct": 11.0
-    }
-  },
-  "firecrawl": {
-    "run_name": "firecrawl-wcxb_sample50-v2-c1",
-    "engine": "firecrawl",
-    "set": "wcxb_sample50",
-    "concurrency": 1,
-    "total_requests": 52,
-    "successful_requests": 50,
-    "success_rate": 96.15,
-    "wall_time_s": 155.606,
-    "qps": 0.32,
-    "latency_ms": {
-      "n": 50,
-      "mean": 3087.7617999999998,
-      "p50": 2019.828,
-      "p90": 5002.939,
-      "p99": 29881.04,
-      "min": 70.729,
-      "max": 29881.04
-    },
-    "quality": {
-      "evaluated_pages": 50,
-      "precision": 0.6798,
-      "recall": 0.9393,
-      "f1": 0.7621,
-      "by_type": {
-        "article": {
-          "count": 8,
-          "precision": 0.8786,
-          "recall": 0.9999,
-          "f1": 0.9329
+    "cohort_b_intersection": {
+      "common_count": 49,
+      "pagesift": {
+        "evaluated_pages": 49,
+        "precision": 0.7964,
+        "recall": 0.8903,
+        "f1": 0.8099,
+        "latency_ms": {
+          "n": 49,
+          "mean": 4.697,
+          "ci95": [
+            4.1625,
+            5.2722
+          ],
+          "p50": 4.564,
+          "p90": 7.054,
+          "p95": 9.386,
+          "p99": 12.582,
+          "min": 1.933,
+          "max": 12.582,
+          "stdev": 2.046
         },
-        "collection": {
-          "count": 7,
-          "precision": 0.5925,
-          "recall": 1.0,
-          "f1": 0.6957
-        },
-        "documentation": {
-          "count": 7,
-          "precision": 0.9191,
-          "recall": 0.9951,
-          "f1": 0.9496
-        },
-        "forum": {
-          "count": 7,
-          "precision": 0.5391,
-          "recall": 0.9999,
-          "f1": 0.6921
-        },
-        "listing": {
-          "count": 7,
-          "precision": 0.6193,
-          "recall": 0.854,
-          "f1": 0.6773
-        },
-        "product": {
-          "count": 7,
-          "precision": 0.6051,
-          "recall": 0.9908,
-          "f1": 0.7364
-        },
-        "service": {
-          "count": 7,
-          "precision": 0.5766,
-          "recall": 0.7264,
-          "f1": 0.6261
+        "by_type": {
+          "article": {
+            "count": 8,
+            "precision": 0.9672,
+            "recall": 0.9656,
+            "f1": 0.9642
+          },
+          "collection": {
+            "count": 7,
+            "precision": 0.6745,
+            "recall": 0.934,
+            "f1": 0.7376
+          },
+          "documentation": {
+            "count": 7,
+            "precision": 0.9575,
+            "recall": 0.9884,
+            "f1": 0.9709
+          },
+          "forum": {
+            "count": 7,
+            "precision": 0.6561,
+            "recall": 0.9651,
+            "f1": 0.7626
+          },
+          "listing": {
+            "count": 6,
+            "precision": 0.6559,
+            "recall": 0.7037,
+            "f1": 0.5878
+          },
+          "product": {
+            "count": 7,
+            "precision": 0.8434,
+            "recall": 0.8425,
+            "f1": 0.8119
+          },
+          "service": {
+            "count": 7,
+            "precision": 0.7758,
+            "recall": 0.7953,
+            "f1": 0.7805
+          }
         }
+      },
+      "firecrawl": {
+        "evaluated_pages": 49,
+        "precision": 0.6733,
+        "recall": 0.938,
+        "f1": 0.7572,
+        "latency_ms": {
+          "n": 49,
+          "mean": 3149.334,
+          "ci95": [
+            2088.1208,
+            4658.7606
+          ],
+          "p50": 2019.828,
+          "p90": 5002.939,
+          "p95": 10744.052,
+          "p99": 29881.04,
+          "min": 111.44,
+          "max": 29881.04,
+          "stdev": 4591.684
+        },
+        "by_type": {
+          "article": {
+            "count": 8,
+            "precision": 0.8786,
+            "recall": 0.9999,
+            "f1": 0.9329
+          },
+          "collection": {
+            "count": 7,
+            "precision": 0.5925,
+            "recall": 1.0,
+            "f1": 0.6957
+          },
+          "documentation": {
+            "count": 7,
+            "precision": 0.9191,
+            "recall": 0.9951,
+            "f1": 0.9496
+          },
+          "forum": {
+            "count": 7,
+            "precision": 0.5391,
+            "recall": 0.9999,
+            "f1": 0.6921
+          },
+          "listing": {
+            "count": 6,
+            "precision": 0.5558,
+            "recall": 0.8297,
+            "f1": 0.6235
+          },
+          "product": {
+            "count": 7,
+            "precision": 0.6051,
+            "recall": 0.9908,
+            "f1": 0.7364
+          },
+          "service": {
+            "count": 7,
+            "precision": 0.5766,
+            "recall": 0.7264,
+            "f1": 0.6261
+          }
+        }
+      },
+      "paired_f1_difference": {
+        "n": 49,
+        "mean_difference": 0.0527,
+        "std_error": 0.0237,
+        "t_statistic": 2.22,
+        "ci95": [
+          0.0097,
+          0.1015
+        ]
+      },
+      "paired_latency_difference": {
+        "n": 49,
+        "mean_difference": -3144.6364,
+        "std_error": 655.9783,
+        "t_statistic": -4.79,
+        "ci95": [
+          -4653.9995,
+          -2083.2261
+        ]
       }
     },
-    "resources": {
-      "peak_mem_mb": 2879.4,
-      "avg_mem_mb": 2740.8,
-      "peak_cpu_pct": 280.5,
-      "avg_cpu_pct": 77.9
-    }
-  },
-  "concurrency_sweep": {
-    "pagesift": {
-      "c1_qps": 26.38,
-      "c1_p50_ms": 4.564,
-      "c4_qps": 919.47,
-      "c4_p50_ms": 3.344,
-      "c4_wall_s": 0.055
-    },
-    "firecrawl": {
-      "c1_qps": 0.32,
-      "c1_p50_ms": 2019.828,
-      "c4_qps": 1.79,
-      "c4_p50_ms": 1540.729,
-      "c4_wall_s": 28.01
+    "cohort_c_full_penalty": {
+      "total_count": 52,
+      "pagesift": {
+        "evaluated_pages": 52,
+        "precision": 0.7697,
+        "recall": 0.8582,
+        "f1": 0.7824,
+        "latency_ms": {
+          "n": 52,
+          "mean": 37.007,
+          "ci95": [
+            4.1986,
+            102.2297
+          ],
+          "p50": 4.466,
+          "p90": 7.054,
+          "p95": 9.576,
+          "p99": 1690.546,
+          "min": 1.551,
+          "max": 1690.546,
+          "stdev": 233.81
+        },
+        "by_type": {
+          "article": {
+            "count": 8,
+            "precision": 0.9672,
+            "recall": 0.9656,
+            "f1": 0.9642
+          },
+          "collection": {
+            "count": 7,
+            "precision": 0.6745,
+            "recall": 0.934,
+            "f1": 0.7376
+          },
+          "documentation": {
+            "count": 7,
+            "precision": 0.9575,
+            "recall": 0.9884,
+            "f1": 0.9709
+          },
+          "forum": {
+            "count": 8,
+            "precision": 0.5741,
+            "recall": 0.8445,
+            "f1": 0.6673
+          },
+          "listing": {
+            "count": 7,
+            "precision": 0.5622,
+            "recall": 0.6032,
+            "f1": 0.5038
+          },
+          "product": {
+            "count": 7,
+            "precision": 0.8434,
+            "recall": 0.8425,
+            "f1": 0.8119
+          },
+          "service": {
+            "count": 8,
+            "precision": 0.8038,
+            "recall": 0.8209,
+            "f1": 0.808
+          }
+        }
+      },
+      "firecrawl": {
+        "evaluated_pages": 52,
+        "precision": 0.6537,
+        "recall": 0.9031,
+        "f1": 0.7328,
+        "latency_ms": {
+          "n": 52,
+          "mean": 2992.194,
+          "ci95": [
+            1984.5059,
+            4417.9871
+          ],
+          "p50": 1932.431,
+          "p90": 4960.666,
+          "p95": 10744.052,
+          "p99": 29881.04,
+          "min": 70.729,
+          "max": 29881.04,
+          "stdev": 4501.975
+        },
+        "by_type": {
+          "article": {
+            "count": 8,
+            "precision": 0.8786,
+            "recall": 0.9999,
+            "f1": 0.9329
+          },
+          "collection": {
+            "count": 7,
+            "precision": 0.5925,
+            "recall": 1.0,
+            "f1": 0.6957
+          },
+          "documentation": {
+            "count": 7,
+            "precision": 0.9191,
+            "recall": 0.9951,
+            "f1": 0.9496
+          },
+          "forum": {
+            "count": 8,
+            "precision": 0.4717,
+            "recall": 0.8749,
+            "f1": 0.6056
+          },
+          "listing": {
+            "count": 7,
+            "precision": 0.6193,
+            "recall": 0.854,
+            "f1": 0.6773
+          },
+          "product": {
+            "count": 7,
+            "precision": 0.6051,
+            "recall": 0.9908,
+            "f1": 0.7364
+          },
+          "service": {
+            "count": 8,
+            "precision": 0.5046,
+            "recall": 0.6356,
+            "f1": 0.5478
+          }
+        }
+      }
     }
   }
 }

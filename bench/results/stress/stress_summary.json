@@ -1,0 +1,621 @@
+{
+  "timestamp": "2026-11-12T09:14:39Z",
+  "declaration": "Stress testing is deliberately designed to demonstrate extreme engineering and production robustness.",
+  "tests": {
+    "x1_concurrency_ladder": {
+      "c_1": {
+        "concurrency": 1,
+        "duration_s": 10.0,
+        "requests": 3719,
+        "qps": 371.88,
+        "status_codes": {
+          "200": 3719
+        },
+        "latency_ms": {
+          "n": 3719,
+          "mean": 2.635,
+          "ci95": [
+            2.6068,
+            2.6639
+          ],
+          "p50": 2.448,
+          "p90": 3.656,
+          "p95": 4.169,
+          "p99": 5.279,
+          "min": 1.418,
+          "max": 13.838,
+          "stdev": 0.905
+        }
+      },
+      "c_2": {
+        "concurrency": 2,
+        "duration_s": 10.0,
+        "requests": 7125,
+        "qps": 712.39,
+        "status_codes": {
+          "200": 7125
+        },
+        "latency_ms": {
+          "n": 7125,
+          "mean": 2.759,
+          "ci95": [
+            2.7432,
+            2.7755
+          ],
+          "p50": 2.664,
+          "p90": 3.674,
+          "p95": 4.082,
+          "p99": 4.916,
+          "min": 1.471,
+          "max": 8.309,
+          "stdev": 0.706
+        }
+      },
+      "c_4": {
+        "concurrency": 4,
+        "duration_s": 10.0,
+        "requests": 8946,
+        "qps": 894.51,
+        "status_codes": {
+          "200": 8946
+        },
+        "latency_ms": {
+          "n": 8946,
+          "mean": 4.42,
+          "ci95": [
+            4.3914,
+            4.4509
+          ],
+          "p50": 4.401,
+          "p90": 6.305,
+          "p95": 6.852,
+          "p99": 7.896,
+          "min": 1.519,
+          "max": 9.869,
+          "stdev": 1.437
+        }
+      },
+      "c_8": {
+        "concurrency": 8,
+        "duration_s": 10.0,
+        "requests": 23340,
+        "qps": 2333.53,
+        "status_codes": {
+          "200": 23340
+        },
+        "latency_ms": {
+          "n": 23340,
+          "mean": 3.385,
+          "ci95": [
+            3.3315,
+            3.4831
+          ],
+          "p50": 3.271,
+          "p90": 4.434,
+          "p95": 4.778,
+          "p99": 5.405,
+          "min": 1.543,
+          "max": 1065.705,
+          "stdev": 7.0
+        }
+      },
+      "c_16": {
+        "concurrency": 16,
+        "duration_s": 10.01,
+        "requests": 26934,
+        "qps": 2691.57,
+        "status_codes": {
+          "200": 26934
+        },
+        "latency_ms": {
+          "n": 26934,
+          "mean": 5.898,
+          "ci95": [
+            5.8496,
+            5.9822
+          ],
+          "p50": 5.773,
+          "p90": 7.051,
+          "p95": 7.452,
+          "p99": 8.3,
+          "min": 3.411,
+          "max": 1069.377,
+          "stdev": 6.545
+        }
+      },
+      "c_32": {
+        "concurrency": 32,
+        "duration_s": 10.01,
+        "requests": 26632,
+        "qps": 2660.13,
+        "status_codes": {
+          "200": 26632
+        },
+        "latency_ms": {
+          "n": 26632,
+          "mean": 11.971,
+          "ci95": [
+            11.8876,
+            12.0953
+          ],
+          "p50": 11.837,
+          "p90": 13.207,
+          "p95": 13.628,
+          "p99": 14.438,
+          "min": 3.729,
+          "max": 1058.129,
+          "stdev": 9.051
+        }
+      },
+      "c_64": {
+        "concurrency": 64,
+        "duration_s": 10.02,
+        "requests": 26815,
+        "qps": 2675.06,
+        "status_codes": {
+          "200": 26815
+        },
+        "latency_ms": {
+          "n": 26815,
+          "mean": 23.799,
+          "ci95": [
+            23.745,
+            23.8861
+          ],
+          "p50": 23.813,
+          "p90": 25.586,
+          "p95": 26.113,
+          "p99": 27.097,
+          "min": 4.515,
+          "max": 1051.383,
+          "stdev": 6.482
+        }
+      },
+      "c_128": {
+        "concurrency": 128,
+        "duration_s": 10.05,
+        "requests": 27490,
+        "qps": 2735.98,
+        "status_codes": {
+          "200": 27490
+        },
+        "latency_ms": {
+          "n": 27490,
+          "mean": 46.418,
+          "ci95": [
+            46.3764,
+            46.4604
+          ],
+          "p50": 46.406,
+          "p90": 49.899,
+          "p95": 51.059,
+          "p99": 53.144,
+          "min": 3.705,
+          "max": 58.399,
+          "stdev": 3.643
+        }
+      },
+      "c_256": {
+        "concurrency": 256,
+        "duration_s": 10.47,
+        "requests": 26569,
+        "qps": 2537.43,
+        "status_codes": {
+          "200": 26569
+        },
+        "latency_ms": {
+          "n": 26569,
+          "mean": 95.974,
+          "ci95": [
+            95.8211,
+            96.1502
+          ],
+          "p50": 96.445,
+          "p90": 103.331,
+          "p95": 104.499,
+          "p99": 106.883,
+          "min": 3.791,
+          "max": 1141.181,
+          "stdev": 13.737
+        }
+      },
+      "c_512": {
+        "concurrency": 512,
+        "duration_s": 10.22,
+        "requests": 26281,
+        "qps": 2572.29,
+        "status_codes": {
+          "200": 26281
+        },
+        "latency_ms": {
+          "n": 26281,
+          "mean": 191.884,
+          "ci95": [
+            191.496,
+            192.2719
+          ],
+          "p50": 198.853,
+          "p90": 211.234,
+          "p95": 213.492,
+          "p99": 217.555,
+          "min": 4.165,
+          "max": 1270.569,
+          "stdev": 32.196
+        }
+      },
+      "c_1024": {
+        "concurrency": 1024,
+        "duration_s": 10.4,
+        "requests": 26857,
+        "qps": 2581.77,
+        "status_codes": {
+          "200": 26857
+        },
+        "latency_ms": {
+          "n": 26857,
+          "mean": 370.199,
+          "ci95": [
+            369.2652,
+            371.0872
+          ],
+          "p50": 391.58,
+          "p90": 409.324,
+          "p95": 416.969,
+          "p99": 428.568,
+          "min": 3.44,
+          "max": 1450.715,
+          "stdev": 77.995
+        }
+      }
+    },
+    "x2_slo_rate": {
+      "rate_100": {
+        "target_rate_qps": 100,
+        "achieved_qps": 100.0,
+        "total_requests": 1200,
+        "slo_met_p99_100ms": true,
+        "latency_ms": {
+          "n": 1200,
+          "mean": 2.797,
+          "ci95": [
+            2.746,
+            2.8474
+          ],
+          "p50": 2.476,
+          "p90": 4.152,
+          "p95": 4.849,
+          "p99": 5.961,
+          "min": 1.874,
+          "max": 10.675,
+          "stdev": 0.914
+        }
+      },
+      "rate_300": {
+        "target_rate_qps": 300,
+        "achieved_qps": 300.0,
+        "total_requests": 3600,
+        "slo_met_p99_100ms": true,
+        "latency_ms": {
+          "n": 3600,
+          "mean": 2.365,
+          "ci95": [
+            2.3442,
+            2.3851
+          ],
+          "p50": 2.19,
+          "p90": 2.988,
+          "p95": 3.635,
+          "p99": 5.215,
+          "min": 1.496,
+          "max": 7.574,
+          "stdev": 0.653
+        }
+      },
+      "rate_600": {
+        "target_rate_qps": 600,
+        "achieved_qps": 599.95,
+        "total_requests": 7200,
+        "slo_met_p99_100ms": true,
+        "latency_ms": {
+          "n": 7200,
+          "mean": 2.534,
+          "ci95": [
+            2.521,
+            2.5472
+          ],
+          "p50": 2.489,
+          "p90": 3.204,
+          "p95": 3.6,
+          "p99": 4.307,
+          "min": 1.407,
+          "max": 6.226,
+          "stdev": 0.565
+        }
+      },
+      "rate_1000": {
+        "target_rate_qps": 1000,
+        "achieved_qps": 999.88,
+        "total_requests": 12000,
+        "slo_met_p99_100ms": true,
+        "latency_ms": {
+          "n": 12000,
+          "mean": 2.396,
+          "ci95": [
+            2.3884,
+            2.4028
+          ],
+          "p50": 2.358,
+          "p90": 2.885,
+          "p95": 3.192,
+          "p99": 3.484,
+          "min": 1.427,
+          "max": 5.185,
+          "stdev": 0.405
+        }
+      },
+      "rate_1500": {
+        "target_rate_qps": 1500,
+        "achieved_qps": 1499.81,
+        "total_requests": 18000,
+        "slo_met_p99_100ms": true,
+        "latency_ms": {
+          "n": 18000,
+          "mean": 2.24,
+          "ci95": [
+            2.2346,
+            2.2458
+          ],
+          "p50": 2.211,
+          "p90": 2.782,
+          "p95": 2.913,
+          "p99": 3.21,
+          "min": 1.456,
+          "max": 8.53,
+          "stdev": 0.396
+        }
+      },
+      "rate_2000": {
+        "target_rate_qps": 2000,
+        "achieved_qps": 1999.76,
+        "total_requests": 24000,
+        "slo_met_p99_100ms": true,
+        "latency_ms": {
+          "n": 24000,
+          "mean": 2.118,
+          "ci95": [
+            2.1138,
+            2.1218
+          ],
+          "p50": 2.128,
+          "p90": 2.564,
+          "p95": 2.714,
+          "p99": 3.072,
+          "min": 1.442,
+          "max": 5.723,
+          "stdev": 0.32
+        }
+      }
+    },
+    "x3_spike_and_recovery": {
+      "baseline_pre": {
+        "phase": "baseline_pre",
+        "target_rate": 150,
+        "duration_s": 15.0,
+        "requests": 2250,
+        "qps": 150.0,
+        "codes": {
+          "200": 2250
+        },
+        "latency_ms": {
+          "n": 2250,
+          "mean": 2.738,
+          "ci95": [
+            2.7034,
+            2.7724
+          ],
+          "p50": 2.573,
+          "p90": 3.57,
+          "p95": 4.204,
+          "p99": 5.669,
+          "min": 1.742,
+          "max": 11.173,
+          "stdev": 0.815
+        }
+      },
+      "spike": {
+        "phase": "spike",
+        "target_rate": 1200,
+        "duration_s": 20.0,
+        "requests": 24000,
+        "qps": 1199.89,
+        "codes": {
+          "200": 24000
+        },
+        "latency_ms": {
+          "n": 24000,
+          "mean": 2.424,
+          "ci95": [
+            2.4189,
+            2.429
+          ],
+          "p50": 2.385,
+          "p90": 2.868,
+          "p95": 3.022,
+          "p99": 3.515,
+          "min": 1.623,
+          "max": 9.224,
+          "stdev": 0.405
+        }
+      },
+      "recovery_post": {
+        "phase": "recovery_post",
+        "target_rate": 150,
+        "duration_s": 20.0,
+        "requests": 3000,
+        "qps": 150.0,
+        "codes": {
+          "200": 3000
+        },
+        "latency_ms": {
+          "n": 3000,
+          "mean": 2.934,
+          "ci95": [
+            2.9021,
+            2.9658
+          ],
+          "p50": 2.894,
+          "p90": 3.806,
+          "p95": 4.398,
+          "p99": 6.39,
+          "min": 1.639,
+          "max": 9.38,
+          "stdev": 0.862
+        }
+      }
+    },
+    "x5_multimodal_mix": {
+      "html": {
+        "count": 80257,
+        "percentage": 70.1,
+        "latency_ms": {
+          "n": 80257,
+          "mean": 12.744,
+          "ci95": [
+            12.6837,
+            12.8183
+          ],
+          "p50": 12.583,
+          "p90": 14.064,
+          "p95": 14.533,
+          "p99": 15.579,
+          "min": 7.013,
+          "max": 1057.755,
+          "stdev": 9.696
+        }
+      },
+      "dynamic": {
+        "count": 17016,
+        "percentage": 14.9,
+        "latency_ms": {
+          "n": 17016,
+          "mean": 14.065,
+          "ci95": [
+            13.9929,
+            14.1953
+          ],
+          "p50": 13.953,
+          "p90": 15.48,
+          "p95": 16.001,
+          "p99": 17.051,
+          "min": 10.078,
+          "max": 1017.969,
+          "stdev": 7.788
+        }
+      },
+      "docs": {
+        "count": 11466,
+        "percentage": 10.0,
+        "latency_ms": {
+          "n": 11466,
+          "mean": 0.798,
+          "ci95": [
+            0.7908,
+            0.805
+          ],
+          "p50": 0.707,
+          "p90": 1.27,
+          "p95": 1.49,
+          "p99": 2.044,
+          "min": 0.301,
+          "max": 7.841,
+          "stdev": 0.384
+        }
+      },
+      "crawl": {
+        "count": 5675,
+        "percentage": 5.0,
+        "latency_ms": {
+          "n": 5675,
+          "mean": 0.762,
+          "ci95": [
+            0.7525,
+            0.7724
+          ],
+          "p50": 0.668,
+          "p90": 1.26,
+          "p95": 1.499,
+          "p99": 2.062,
+          "min": 0.28,
+          "max": 5.068,
+          "stdev": 0.388
+        }
+      }
+    },
+    "x6_scale_and_soak": {
+      "total_requests": 49984,
+      "elapsed_seconds": 17.2,
+      "overall_qps": 2905.62,
+      "initial_rss_mb": 188.48,
+      "final_rss_mb": 188.5,
+      "rss_delta_mb": 0.02,
+      "leak_rate_mb_per_10k": 0.0027,
+      "initial_fd": 82,
+      "final_fd": 82,
+      "fd_delta": 0,
+      "rss_trend": [
+        [
+          5000,
+          188.48
+        ],
+        [
+          10000,
+          188.48
+        ],
+        [
+          15000,
+          188.48
+        ],
+        [
+          20000,
+          188.48
+        ],
+        [
+          25000,
+          188.48
+        ],
+        [
+          30000,
+          188.48
+        ],
+        [
+          35000,
+          188.48
+        ],
+        [
+          40000,
+          188.48
+        ],
+        [
+          45000,
+          188.5
+        ]
+      ]
+    },
+    "x7_fault_injection": {
+      "ftp_scheme_defense": {
+        "status": 400,
+        "latency_ms": 7.13,
+        "blocked": true
+      },
+      "unreachable_private_port": {
+        "status": 502,
+        "latency_ms": 0.36
+      },
+      "large_json_payload": {
+        "status": 200,
+        "latency_ms": 2.76,
+        "handled": true
+      }
+    }
+  }
+}
