@@ -9,6 +9,10 @@ description:
   en_US: Sub-millisecond web scraping and zero-dependency document parsing (PDF, Office, CSV) powered by pure-Rust PageSift.
   zh_Hans: 基于纯 Rust PageSift 的亚毫秒级网页与全格式文档（PDF、Office、CSV）高保真提取引擎。
 icon: icon.svg
+tags:
+  - search
+  - rag
+  - utilities
 privacy: PRIVACY.md
 repo: https://github.com/YOLOW92/dify-plugin-pagesift
 contact: wyc610721@gmail.com
