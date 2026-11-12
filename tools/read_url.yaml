@@ -4,13 +4,12 @@ identity:
   label:
     en_US: Read Webpage to Markdown
     zh_Hans: 网页转高保真 Markdown
-  description:
-    human:
-      en_US: Scrape any URL and extract noise-free, structure-preserving Markdown in sub-milliseconds powered by PageSift.
-      zh_Hans: 基于 PageSift 亚毫秒级解析网页，滤除噪点并提取纯净的 Markdown 与元数据。
-    llm:
-      en_US: Scrape and extract clean Markdown content, title, and metadata from a web page URL. Ideal for retrieving up-to-date web information.
-      zh_Hans: 抓取并解析指定网页 URL，输出结构完整的 Markdown 正文及元数据。
+
+description:
+  human:
+    en_US: Scrape any URL and extract noise-free, structure-preserving Markdown in sub-milliseconds powered by PageSift.
+    zh_Hans: 基于 PageSift 亚毫秒级解析网页，滤除噪点并提取纯净的 Markdown 与元数据。
+  llm: Scrape and extract clean Markdown content, title, and metadata from a web page URL. Ideal for retrieving up-to-date web information.
 
 parameters:
   - name: url
@@ -23,9 +22,7 @@ parameters:
     human_description:
       en_US: The full target URL to fetch and parse.
       zh_Hans: 需要抓取和解析的目标网页完整 URL。
-    llm_description:
-      en_US: Target web URL (http:// or https://) to scrape.
-      zh_Hans: 需要抓取的网页 URL。
+    llm_description: Target web URL (http:// or https://) to scrape.
 
   - name: only_main_content
     type: boolean
@@ -38,9 +35,7 @@ parameters:
     human_description:
       en_US: Strip navigational elements, ads, and footers (1.000-F1 extraction).
       zh_Hans: 自动滤除导航栏、侧边栏、广告及页脚，仅提取核心正文。
-    llm_description:
-      en_US: Whether to extract only the main article content (defaults to true).
-      zh_Hans: 是否仅提取正文。
+    llm_description: Whether to extract only the main article content (defaults to true).
 
   - name: include_metadata
     type: boolean
@@ -53,9 +48,7 @@ parameters:
     human_description:
       en_US: Include title, description, publication date, and OpenGraph metadata.
       zh_Hans: 在输出中包含页面标题、作者、发布日期及 OpenGraph 元数据。
-    llm_description:
-      en_US: Include metadata block at the beginning of the returned Markdown.
-      zh_Hans: 是否包含元数据。
+    llm_description: Include metadata block at the beginning of the returned Markdown.
 
 extra:
   python:

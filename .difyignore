@@ -1,0 +1,34 @@
+# Environments & Virtualenvs
+.venv/
+env/
+venv/
+
+# Caches & Test Artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+
+# Benchmarks & Corpus
+bench/
+benchmark_vs_firecrawl.py
+test_firecrawl_dropin.py
+run_bench.sh
+docker-compose.pagesift.yml
+
+# Build & Dist Artifacts
+dist/
+scripts/
+*.difypkg
+*.difypkg.sha256
+build/
+
+# Git & IDEs
+.git/
+.github/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

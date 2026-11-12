@@ -19,7 +19,7 @@ from lib.errors import (
     PageSiftSSRFError,
     PageSiftTimeoutError,
 )
-from lib.validation import validate_target_url
+from lib.validation import safe_download_file, validate_target_url
 
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB safety limit
 
@@ -67,17 +67,21 @@ class ParseDocumentTool(Tool):
                     file_obj.get("url") if isinstance(file_obj, dict) else None
                 )
                 if not file_bytes and target_url:
-                    valid_download_url = validate_target_url(target_url, allow_private=False)
-                    dl_resp = requests.get(valid_download_url, timeout=30.0)
-                    dl_resp.raise_for_status()
-                    file_bytes = dl_resp.content
+                    file_bytes = safe_download_file(
+                        url=target_url,
+                        max_size=MAX_FILE_SIZE,
+                        timeout=30.0,
+                        allow_private=False,
+                    )
 
             # 2. Handle direct file_url
             elif file_url:
-                valid_download_url = validate_target_url(file_url, allow_private=False)
-                dl_resp = requests.get(valid_download_url, timeout=30.0)
-                dl_resp.raise_for_status()
-                file_bytes = dl_resp.content
+                file_bytes = safe_download_file(
+                    url=file_url,
+                    max_size=MAX_FILE_SIZE,
+                    timeout=30.0,
+                    allow_private=False,
+                )
                 clean_name = file_url.split("?")[0].rstrip("/").split("/")[-1]
                 if clean_name:
                     filename = clean_name

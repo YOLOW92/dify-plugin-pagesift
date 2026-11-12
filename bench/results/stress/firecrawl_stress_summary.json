@@ -1,0 +1,171 @@
+{
+  "engine": "firecrawl",
+  "total_duration_sec": 199.72,
+  "x1_concurrency_ladder": {
+    "1": {
+      "concurrency": 1,
+      "requests": 16,
+      "success": 16,
+      "qps": 1.01,
+      "p50_ms": 624.1602959999,
+      "p99_ms": 624.1602959999
+    },
+    "2": {
+      "concurrency": 2,
+      "requests": 16,
+      "success": 16,
+      "qps": 2.53,
+      "p50_ms": 609.7459430002345,
+      "p99_ms": 609.7459430002345
+    },
+    "4": {
+      "concurrency": 4,
+      "requests": 16,
+      "success": 16,
+      "qps": 3.8,
+      "p50_ms": 607.1727660000761,
+      "p99_ms": 607.1727660000761
+    },
+    "8": {
+      "concurrency": 8,
+      "requests": 32,
+      "success": 32,
+      "qps": 5.11,
+      "p50_ms": 1105.097265999575,
+      "p99_ms": 1105.097265999575
+    },
+    "16": {
+      "concurrency": 16,
+      "requests": 64,
+      "success": 64,
+      "qps": 4.5,
+      "p50_ms": 2178.659739000068,
+      "p99_ms": 2178.659739000068
+    },
+    "32": {
+      "concurrency": 32,
+      "requests": 128,
+      "success": 128,
+      "qps": 5.27,
+      "p50_ms": 1974.361537999357,
+      "p99_ms": 2159.211206000691
+    }
+  },
+  "x2_slo_arrival_rate": {
+    "1.0": {
+      "target_qps": 1.0,
+      "actual_qps": 0.97,
+      "requests": 10,
+      "success": 10,
+      "p50_ms": 522.8516810002475,
+      "p99_ms": 522.8516810002475,
+      "meets_slo": false
+    },
+    "2.0": {
+      "target_qps": 2.0,
+      "actual_qps": 1.95,
+      "requests": 20,
+      "success": 20,
+      "p50_ms": 577.3262910006451,
+      "p99_ms": 577.3262910006451,
+      "meets_slo": false
+    },
+    "5.0": {
+      "target_qps": 5.0,
+      "actual_qps": 4.84,
+      "requests": 50,
+      "success": 50,
+      "p50_ms": 519.3403379998927,
+      "p99_ms": 519.3403379998927,
+      "meets_slo": false
+    },
+    "10.0": {
+      "target_qps": 10.0,
+      "actual_qps": 5.37,
+      "requests": 100,
+      "success": 100,
+      "p50_ms": 637.0686019999994,
+      "p99_ms": 637.0686019999994,
+      "meets_slo": false
+    }
+  },
+  "x3_spike_and_recovery": {
+    "baseline": {
+      "phase": "baseline",
+      "rate": 1.0,
+      "requests": 6,
+      "qps": 1.02,
+      "p50_ms": 638.5034029990493,
+      "p99_ms": 638.5034029990493
+    },
+    "spike": {
+      "phase": "spike",
+      "rate": 8.0,
+      "requests": 48,
+      "qps": 5.32,
+      "p50_ms": 673.6360029990465,
+      "p99_ms": 673.6360029990465
+    },
+    "recovery": {
+      "phase": "recovery",
+      "rate": 1.0,
+      "requests": 6,
+      "qps": 1.04,
+      "p50_ms": 692.1053109999775,
+      "p99_ms": 692.1053109999775
+    }
+  },
+  "x4_resource_bounds": {
+    "engine": "firecrawl",
+    "deployment_model": "multi-container cluster (Playwright + Node API + Postgres + RabbitMQ + Redis)",
+    "idle_ram_mb": 2650.0,
+    "load_ram_mb": 3011.7,
+    "container_breakdown_mb": {
+      "firecrawl-playwright-service-1": 281.0,
+      "firecrawl-api-1": 2480.1,
+      "firecrawl-redis-1": 7.3,
+      "firecrawl-nuq-postgres-1": 93.3,
+      "firecrawl-rabbitmq-1": 150.0
+    },
+    "cgroup_256mb_capable": false,
+    "oom_threshold_mb": 1500.0,
+    "notes": "Firecrawl Playwright and Chrome service require minimum 2GB RAM; crashes in <1.5GB cgroup."
+  },
+  "x5_multimodal_mix": {
+    "html": {
+      "count": 3,
+      "p50_ms": 703.6006270009239,
+      "mean_ms": 859.21
+    },
+    "complex_dom": {
+      "count": 3,
+      "p50_ms": 516.8997420005326,
+      "mean_ms": 585.49
+    },
+    "doc_csv": {
+      "count": 3,
+      "p50_ms": 8.350043000973528,
+      "mean_ms": 10.85
+    },
+    "doc_pdf": {
+      "count": 3,
+      "p50_ms": 8.955691999290138,
+      "mean_ms": 14.08
+    },
+    "doc_docx": {
+      "count": 3,
+      "p50_ms": 4.876113998761866,
+      "mean_ms": 5.31
+    }
+  },
+  "x6_scale_and_soak": {
+    "soak_requests": 60,
+    "total_elapsed_sec": 47.91,
+    "overall_qps": 1.25,
+    "initial_ram_mb": 2739.3,
+    "final_ram_mb": 2822.1,
+    "ram_drift_mb": 82.8,
+    "latency_p50_ms": 594.1159320009319,
+    "latency_p99_ms": 594.1159320009319
+  }
+}

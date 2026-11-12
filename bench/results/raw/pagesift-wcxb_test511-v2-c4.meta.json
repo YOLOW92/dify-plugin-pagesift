@@ -1,9 +1,0 @@
-{
-  "engine": "pagesift",
-  "set": "wcxb_test511",
-  "concurrency": 4,
-  "total": 511,
-  "successful": 510,
-  "wall_s": 0.481,
-  "qps": 1062.69
-}

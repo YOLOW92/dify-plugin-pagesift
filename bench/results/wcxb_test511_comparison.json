@@ -1,0 +1,256 @@
+{
+  "dataset": "WCXB Test Split (Official Full Split, 511 pages)",
+  "pagesift": {
+    "total_pages": 511,
+    "successful_pages": 510,
+    "success_rate_pct": 99.8,
+    "precision": 0.875,
+    "recall": 0.9142,
+    "f1": 0.875,
+    "f1_ci95": [
+      0.8578,
+      0.8904
+    ],
+    "latency_ms": {
+      "n": 510,
+      "mean": 4.222,
+      "ci95": [
+        3.8066,
+        4.8766
+      ],
+      "p50": 3.304,
+      "p90": 6.362,
+      "p95": 8.731,
+      "p99": 13.929,
+      "min": 0.908,
+      "max": 142.178,
+      "stdev": 6.544
+    },
+    "by_category": {
+      "article": {
+        "count": 257,
+        "precision": 0.9402,
+        "recall": 0.962,
+        "f1": 0.9422,
+        "f1_ci95": [
+          0.923,
+          0.9581
+        ]
+      },
+      "collection": {
+        "count": 34,
+        "precision": 0.73,
+        "recall": 0.8686,
+        "f1": 0.7476,
+        "f1_ci95": [
+          0.6717,
+          0.8244
+        ]
+      },
+      "documentation": {
+        "count": 42,
+        "precision": 0.9501,
+        "recall": 0.9636,
+        "f1": 0.9527,
+        "f1_ci95": [
+          0.932,
+          0.9695
+        ]
+      },
+      "forum": {
+        "count": 51,
+        "precision": 0.7736,
+        "recall": 0.8943,
+        "f1": 0.7956,
+        "f1_ci95": [
+          0.7391,
+          0.8431
+        ]
+      },
+      "listing": {
+        "count": 40,
+        "precision": 0.7258,
+        "recall": 0.8246,
+        "f1": 0.7325,
+        "f1_ci95": [
+          0.6363,
+          0.8237
+        ]
+      },
+      "product": {
+        "count": 28,
+        "precision": 0.7716,
+        "recall": 0.8488,
+        "f1": 0.775,
+        "f1_ci95": [
+          0.6999,
+          0.8445
+        ]
+      },
+      "service": {
+        "count": 59,
+        "precision": 0.8593,
+        "recall": 0.806,
+        "f1": 0.8133,
+        "f1_ci95": [
+          0.7555,
+          0.8654
+        ]
+      }
+    }
+  },
+  "firecrawl": {
+    "total_pages": 511,
+    "successful_pages": 502,
+    "success_rate_pct": 98.24,
+    "precision": 0.7246,
+    "recall": 0.9587,
+    "f1": 0.7998,
+    "f1_ci95": [
+      0.7797,
+      0.8198
+    ],
+    "latency_ms": {
+      "n": 502,
+      "mean": 2115.269,
+      "ci95": [
+        1924.8159,
+        2317.8641
+      ],
+      "p50": 1578.699,
+      "p90": 4251.498,
+      "p95": 5539.643,
+      "p99": 9240.53,
+      "min": 78.112,
+      "max": 24699.371,
+      "stdev": 2234.991
+    },
+    "by_category": {
+      "article": {
+        "count": 257,
+        "precision": 0.7873,
+        "recall": 0.9599,
+        "f1": 0.8455,
+        "f1_ci95": [
+          0.8176,
+          0.8714
+        ]
+      },
+      "collection": {
+        "count": 34,
+        "precision": 0.5398,
+        "recall": 0.9447,
+        "f1": 0.6513,
+        "f1_ci95": [
+          0.5596,
+          0.7416
+        ]
+      },
+      "documentation": {
+        "count": 42,
+        "precision": 0.8904,
+        "recall": 0.9815,
+        "f1": 0.9233,
+        "f1_ci95": [
+          0.8854,
+          0.9546
+        ]
+      },
+      "forum": {
+        "count": 51,
+        "precision": 0.5955,
+        "recall": 0.98,
+        "f1": 0.721,
+        "f1_ci95": [
+          0.668,
+          0.7713
+        ]
+      },
+      "listing": {
+        "count": 40,
+        "precision": 0.6321,
+        "recall": 0.9271,
+        "f1": 0.7187,
+        "f1_ci95": [
+          0.6259,
+          0.8037
+        ]
+      },
+      "product": {
+        "count": 28,
+        "precision": 0.5345,
+        "recall": 0.9611,
+        "f1": 0.6572,
+        "f1_ci95": [
+          0.5609,
+          0.7391
+        ]
+      },
+      "service": {
+        "count": 59,
+        "precision": 0.7046,
+        "recall": 0.9473,
+        "f1": 0.7892,
+        "f1_ci95": [
+          0.722,
+          0.8449
+        ]
+      }
+    }
+  },
+  "head_to_head_intersection": {
+    "common_count": 501,
+    "pagesift_f1": 0.8767,
+    "firecrawl_f1": 0.8138,
+    "paired_f1_diff": {
+      "n": 501,
+      "mean_difference": 0.0629,
+      "std_error": 0.0083,
+      "t_statistic": 7.57,
+      "ci95": [
+        0.0468,
+        0.0784
+      ]
+    },
+    "pagesift_latency_ms": {
+      "n": 501,
+      "mean": 4.246,
+      "ci95": [
+        3.8148,
+        4.9105
+      ],
+      "p50": 3.312,
+      "p90": 6.416,
+      "p95": 8.731,
+      "p99": 13.929,
+      "min": 0.954,
+      "max": 142.178,
+      "stdev": 6.596
+    },
+    "firecrawl_latency_ms": {
+      "n": 501,
+      "mean": 2119.33,
+      "ci95": [
+        1936.5732,
+        2317.616
+      ],
+      "p50": 1581.447,
+      "p90": 4251.498,
+      "p95": 5539.643,
+      "p99": 9240.53,
+      "min": 78.112,
+      "max": 24699.371,
+      "stdev": 2235.371
+    },
+    "paired_latency_diff": {
+      "n": 501,
+      "mean_difference": -2115.0841,
+      "std_error": 99.8716,
+      "t_statistic": -21.18,
+      "ci95": [
+        -2313.1829,
+        -1932.1412
+      ]
+    }
+  }
+}

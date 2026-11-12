@@ -4,13 +4,12 @@ identity:
   label:
     en_US: Parse Document to Markdown
     zh_Hans: 全格式文档转 Markdown
-  description:
-    human:
-      en_US: Parse PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx), EPUB, and CSV into structured LLM Markdown with sub-second speed.
-      zh_Hans: 毫秒级解析 PDF、Word (.docx)、Excel (.xlsx)、PPT (.pptx)、EPUB 及 CSV，生成高保真结构化 Markdown。
-    llm:
-      en_US: Parse document files (PDF, Word, Excel, PowerPoint, CSV) into clean Markdown. Excels at preserving complex tables and formatting.
-      zh_Hans: 解析 PDF、Word、Excel、PPT 或 CSV 文档为格式规整的 Markdown。
+
+description:
+  human:
+    en_US: Parse PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx), EPUB, and CSV into structured LLM Markdown with sub-second speed.
+    zh_Hans: 毫秒级解析 PDF、Word (.docx)、Excel (.xlsx)、PPT (.pptx)、EPUB 及 CSV，生成高保真结构化 Markdown。
+  llm: Parse document files (PDF, Word, Excel, PowerPoint, CSV) into clean Markdown. Excels at preserving complex tables and formatting.
 
 parameters:
   - name: file
@@ -23,9 +22,7 @@ parameters:
     human_description:
       en_US: The uploaded document file (supports PDF, DOCX, XLSX, PPTX, EPUB, CSV).
       zh_Hans: 在 Dify 工作流中上传的文档对象（支持 PDF、Word、Excel、PPT、EPUB、CSV）。
-    llm_description:
-      en_US: The file object from user upload or workflow variables to parse.
-      zh_Hans: 用户上传或工作流变量中的文档文件。
+    llm_description: The file object from user upload or workflow variables to parse.
 
   - name: file_url
     type: string
@@ -37,9 +34,7 @@ parameters:
     human_description:
       en_US: Public HTTP/HTTPS URL of the document file to fetch and parse.
       zh_Hans: 需要下载并解析的目标文档公开 URL。
-    llm_description:
-      en_US: URL of the document (PDF, DOCX, XLSX, PPTX, CSV) to parse.
-      zh_Hans: 目标文档的下载链接。
+    llm_description: URL of the document (PDF, DOCX, XLSX, PPTX, CSV) to parse.
 
   - name: enable_ocr
     type: boolean
@@ -52,9 +47,7 @@ parameters:
     human_description:
       en_US: Enable pure-Rust OCR engine for scanned PDF pages without text layers.
       zh_Hans: 针对无文本层的扫描版 PDF，调用纯 Rust OCR 引擎识别文字。
-    llm_description:
-      en_US: Whether to trigger OCR for scanned or image-only PDF pages.
-      zh_Hans: 是否对扫描件启用 OCR 识别。
+    llm_description: Whether to trigger OCR for scanned or image-only PDF pages.
 
 extra:
   python:

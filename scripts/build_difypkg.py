@@ -21,6 +21,7 @@ INCLUDED_FILES = [
     "PRIVACY.md",
     "LICENSE",
     "README.md",
+    "README.zh_Hans.md",
 ]
 
 INCLUDED_DIRS = [

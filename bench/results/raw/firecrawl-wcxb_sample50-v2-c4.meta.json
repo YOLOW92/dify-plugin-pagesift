@@ -1,9 +1,0 @@
-{
-  "engine": "firecrawl",
-  "set": "wcxb_sample50",
-  "concurrency": 4,
-  "pages": 52,
-  "wall_s": 28.010217666625977,
-  "t0": 1794472165.82696,
-  "t1": 1794472193.8371778
-}

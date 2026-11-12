@@ -7,10 +7,10 @@ identity:
   description:
     en_US: High-performance Rust-based web scraping, document extraction (PDF, DOCX, XLSX, PPTX, CSV), and LLM Markdown conversion engine.
     zh_Hans: 基于纯 Rust 的高性能网页抓取、全格式文档抽取（PDF/Word/Excel/PPT/CSV）与高质量 Markdown 转换引擎。
-  icon: _assets/icon.svg
+  icon: icon.svg
 
-credentials_schema:
-  - name: base_url
+credentials_for_provider:
+  base_url:
     type: text-input
     required: false
     default: "http://localhost:3002"
@@ -24,7 +24,7 @@ credentials_schema:
       en_US: "Address of your self-hosted or remote PageSift instance."
       zh_Hans: "您自建或远程的 PageSift 服务端点地址。"
 
-  - name: api_key
+  api_key:
     type: secret-input
     required: false
     label:

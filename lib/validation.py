@@ -5,9 +5,10 @@ from __future__ import annotations
 import ipaddress
 import os
 import socket
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
-from lib.errors import PageSiftSSRFError
+import requests
+from lib.errors import PageSiftDocumentError, PageSiftSSRFError
 
 # Explicitly blocked CIDRs (RFC 1918, RFC 3927, Loopback, Cloud Metadata, Multicast)
 BLOCKED_NETWORKS = [
@@ -83,3 +84,89 @@ def validate_target_url(url: str, allow_private: bool = False) -> str:
             raise PageSiftSSRFError(f"Failed to resolve hostname '{clean_host}': {e}")
 
     return clean_url
+
+
+def safe_download_file(
+    url: str,
+    max_size: int = 50 * 1024 * 1024,
+    timeout: float = 30.0,
+    max_redirects: int = 5,
+    allow_private: bool = False,
+) -> bytes:
+    """
+    Download file with strict redirect SSRF validation and stream size enforcement.
+
+    :param url: Initial download URL.
+    :param max_size: Maximum allowed file size in bytes (default 50MB).
+    :param timeout: Network timeout per hop in seconds.
+    :param max_redirects: Maximum allowed redirection hops.
+    :param allow_private: Whether private/internal destinations are allowed.
+    :return: File content bytes.
+    :raises PageSiftSSRFError: If any hop targets a forbidden network address.
+    :raises PageSiftDocumentError: If file exceeds max_size or network fails.
+    """
+    current_url = url
+    session = requests.Session()
+
+    for hop in range(max_redirects + 1):
+        # 1. Validate destination before initiating connection (prevents DNS Rebinding)
+        validated_url = validate_target_url(current_url, allow_private=allow_private)
+
+        try:
+            resp = session.get(
+                validated_url,
+                stream=True,
+                allow_redirects=False,
+                timeout=timeout,
+            )
+        except requests.RequestException as e:
+            raise PageSiftDocumentError(f"Failed to connect to file URL: {e}")
+
+        # 2. Check for HTTP Redirections (301, 302, 303, 307, 308)
+        if resp.status_code in (301, 302, 303, 307, 308):
+            location = resp.headers.get("Location")
+            resp.close()
+            if not location:
+                raise PageSiftDocumentError("Redirect status received without Location header.")
+            if hop >= max_redirects:
+                raise PageSiftDocumentError(f"Exceeded maximum redirection hops ({max_redirects}).")
+
+            # Resolve relative redirect URLs safely
+            current_url = urljoin(current_url, location)
+            continue
+
+        # 3. Handle successful response
+        if resp.status_code != 200:
+            resp.close()
+            raise PageSiftDocumentError(f"Failed to download file (HTTP status {resp.status_code}).")
+
+        # 4. Check Content-Length header preemptively if provided
+        cl_header = resp.headers.get("Content-Length")
+        if cl_header and cl_header.isdigit():
+            expected_len = int(cl_header)
+            if expected_len > max_size:
+                resp.close()
+                raise PageSiftDocumentError(
+                    f"File size {expected_len / (1024*1024):.1f}MB exceeds maximum limit of {max_size // (1024*1024)}MB."
+                )
+
+        # 5. Stream download with byte-level chunk truncation
+        chunks: list[bytes] = []
+        downloaded = 0
+        try:
+            for chunk in resp.iter_content(chunk_size=65536):
+                if not chunk:
+                    continue
+                downloaded += len(chunk)
+                if downloaded > max_size:
+                    resp.close()
+                    raise PageSiftDocumentError(
+                        f"File download truncated: stream exceeded maximum size limit of {max_size // (1024*1024)}MB."
+                    )
+                chunks.append(chunk)
+        finally:
+            resp.close()
+
+        return b"".join(chunks)
+
+    raise PageSiftDocumentError("Redirection loop detected or exceeded maximum hops.")

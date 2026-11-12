@@ -10,6 +10,7 @@ import requests
 from lib.client import PageSiftClient
 
 BASE_URL = os.environ.get("PAGESIFT_BASE_URL", "http://127.0.0.1:3002")
+API_KEY = os.environ.get("PAGESIFT_API_KEY", "bench")
 
 
 def is_server_online() -> bool:
@@ -27,16 +28,16 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_contract_healthz():
-    client = PageSiftClient(base_url=BASE_URL)
+    client = PageSiftClient(base_url=BASE_URL, api_key=API_KEY)
     client.validate_connection()
 
 
 def test_contract_v1_and_v2_scrape():
-    client = PageSiftClient(base_url=BASE_URL)
+    client = PageSiftClient(base_url=BASE_URL, api_key=API_KEY)
     # Scrape with v2 endpoint
     os.environ["PAGESIFT_ALLOW_PRIVATE_TARGETS"] = "1"
     try:
-        res = client.scrape("http://127.0.0.1:8800/articles/sample_001.html", api_version="v2")
+        res = client.scrape("http://127.0.0.1:8800/wcxb/4011.html", api_version="v2")
         assert res.get("success") is True
         assert "data" in res
         assert "markdown" in res["data"]
