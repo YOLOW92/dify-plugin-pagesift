@@ -95,17 +95,22 @@ dify-plugin-pagesift/
 
 ---
 
-## 📊 Measured Benchmarks vs. Traditional Stacks
+## 📊 Measured Benchmarks vs. Firecrawl (v2 API)
 
-*All measurements conducted on standard Linux x86_64 host.*
+*All measurements conducted on standard Linux x86_64 host (16 cores, 15 GiB RAM) across identical WCXB 52-page balanced benchmark.*
+*Detailed methodology and full numbers available in [bench/BENCHMARK_REPORT.md](bench/BENCHMARK_REPORT.md) and interactive [bench/report.html](bench/report.html).*
 
-| Task | PageSift Suite | Next Best Alternative | Speedup | Memory RSS |
-| :--- | :--- | :--- | :--- | :--- |
-| **HTML to Markdown** | **0.24 ms** | Firecrawl Self-Hosted (~2,000 ms) | **>8,000×** | **25 MB** vs 2,500 MB |
-| **Main Content Extraction** | **1.0 ms** | Readability.py (7.26 ms) | **7.26×** | **Zero-Copy Arena** |
-| **PDF to Markdown** | **2.4 ms/page** | pypdfium2 (18.6 ms) / pypdf (49.2 ms) | **20.49×** | **0 C/C++ native deps** |
-| **Office Documents** | **91.7 files/s** | python-docx / openpyxl (26.9 files/s) | **3.40×** | **Low RAM** |
-| **Base64 Transfer** | **20.4 GB/s** | Python `base64` C-ext (2.1 GB/s) | **9.71×** | **AVX2 / NEON SIMD** |
+| Benchmark Dimension | PageSift 1.3.0 (Pure Rust) | Firecrawl v2 (Docker Cluster) | Speedup / Advantage |
+| :--- | :--- | :--- | :--- |
+| **Median Latency (p50)** | **4.56 ms** | 2,019.83 ms | **442.6× faster** |
+| **Mean Latency** | **37.69 ms** | 3,087.76 ms | **81.9× faster** |
+| **P90 Tail Latency** | **7.05 ms** | 5,002.94 ms | Sub-10ms for 90% of requests |
+| **Single-thread Throughput (c=1)** | **26.38 pages/s** | 0.32 pages/s | **82.4× throughput** |
+| **Multi-thread Throughput (c=4)** | **919.47 pages/s** | 1.79 pages/s | **513.7× throughput** |
+| **Extraction Quality (Word-F1)** | **0.7977** (Prec: 0.7848) | 0.7621 (Prec: 0.6798) | **+3.6% higher F1** (cleans ads/nav) |
+| **Peak Memory Footprint** | **272.7 MB** | 2,879.4 MB | **90.5% memory reduction** |
+| **Cold Startup Time** | **0.09 s** | 70.29 s | **780× faster startup** |
+| **Full Format Coverage** | **Web, PDF, DOCX, XLSX, PPTX, CSV** | Web only | Universal document layer |
 
 ---
 
@@ -126,7 +131,7 @@ dify-plugin-pagesift/
 
 ## 👨‍💻 Author & Contact
 
-* **Developer**: WU YUANCHAO (武远超)
+* **Developer**: WU YUANCHAO (吴袁超)
 * **GitHub**: [@YOLOW92](https://github.com/YOLOW92)
 * **Email**: [wyc610721@gmail.com](mailto:wyc610721@gmail.com)
 * **LinkedIn**: [https://www.linkedin.com/in/yolow92/](https://www.linkedin.com/in/yolow92/)

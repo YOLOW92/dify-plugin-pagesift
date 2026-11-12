@@ -13,6 +13,19 @@ identity:
       zh_Hans: 解析 PDF、Word、Excel、PPT 或 CSV 文档为格式规整的 Markdown。
 
 parameters:
+  - name: file
+    type: file
+    required: false
+    label:
+      en_US: Document File
+      zh_Hans: 文档文件
+    human_description:
+      en_US: The uploaded document file (supports PDF, DOCX, XLSX, PPTX, EPUB, CSV).
+      zh_Hans: 在 Dify 工作流中上传的文档对象（支持 PDF、Word、Excel、PPT、EPUB、CSV）。
+    llm_description:
+      en_US: The file object from user upload or workflow variables to parse.
+      zh_Hans: 用户上传或工作流变量中的文档文件。
+
   - name: file_url
     type: string
     required: false
@@ -25,19 +38,6 @@ parameters:
     llm_description:
       en_US: URL of the document (PDF, DOCX, XLSX, PPTX, CSV) to parse.
       zh_Hans: 目标文档的下载链接。
-
-  - name: file_path
-    type: string
-    required: false
-    label:
-      en_US: Local File Path
-      zh_Hans: 本地文件路径
-    human_description:
-      en_US: Local filesystem path to the document file (when accessible).
-      zh_Hans: 服务器本地文件系统路径（如上传后的暂存文件路径）。
-    llm_description:
-      en_US: Local file system path to the document.
-      zh_Hans: 文档在本地的存储绝对路径。
 
   - name: enable_ocr
     type: boolean

@@ -1,0 +1,170 @@
+{
+  "pagesift": {
+    "run_name": "pagesift-wcxb_sample50-v2-c1",
+    "engine": "pagesift",
+    "set": "wcxb_sample50",
+    "concurrency": 1,
+    "total_requests": 52,
+    "successful_requests": 51,
+    "success_rate": 98.08,
+    "wall_time_s": 1.933,
+    "qps": 26.38,
+    "latency_ms": {
+      "n": 51,
+      "mean": 37.691607843137255,
+      "p50": 4.564,
+      "p90": 7.054,
+      "p99": 1690.546,
+      "min": 1.551,
+      "max": 1690.546
+    },
+    "quality": {
+      "evaluated_pages": 51,
+      "precision": 0.7848,
+      "recall": 0.875,
+      "f1": 0.7977,
+      "by_type": {
+        "article": {
+          "count": 8,
+          "precision": 0.9672,
+          "recall": 0.9656,
+          "f1": 0.9642
+        },
+        "collection": {
+          "count": 7,
+          "precision": 0.6745,
+          "recall": 0.934,
+          "f1": 0.7376
+        },
+        "documentation": {
+          "count": 7,
+          "precision": 0.9575,
+          "recall": 0.9884,
+          "f1": 0.9709
+        },
+        "forum": {
+          "count": 8,
+          "precision": 0.5741,
+          "recall": 0.8445,
+          "f1": 0.6673
+        },
+        "listing": {
+          "count": 6,
+          "precision": 0.6559,
+          "recall": 0.7037,
+          "f1": 0.5878
+        },
+        "product": {
+          "count": 7,
+          "precision": 0.8434,
+          "recall": 0.8425,
+          "f1": 0.8119
+        },
+        "service": {
+          "count": 8,
+          "precision": 0.8038,
+          "recall": 0.8209,
+          "f1": 0.808
+        }
+      }
+    },
+    "resources": {
+      "peak_mem_mb": 272.7,
+      "avg_mem_mb": 111.5,
+      "peak_cpu_pct": 46.0,
+      "avg_cpu_pct": 11.0
+    }
+  },
+  "firecrawl": {
+    "run_name": "firecrawl-wcxb_sample50-v2-c1",
+    "engine": "firecrawl",
+    "set": "wcxb_sample50",
+    "concurrency": 1,
+    "total_requests": 52,
+    "successful_requests": 50,
+    "success_rate": 96.15,
+    "wall_time_s": 155.606,
+    "qps": 0.32,
+    "latency_ms": {
+      "n": 50,
+      "mean": 3087.7617999999998,
+      "p50": 2019.828,
+      "p90": 5002.939,
+      "p99": 29881.04,
+      "min": 70.729,
+      "max": 29881.04
+    },
+    "quality": {
+      "evaluated_pages": 50,
+      "precision": 0.6798,
+      "recall": 0.9393,
+      "f1": 0.7621,
+      "by_type": {
+        "article": {
+          "count": 8,
+          "precision": 0.8786,
+          "recall": 0.9999,
+          "f1": 0.9329
+        },
+        "collection": {
+          "count": 7,
+          "precision": 0.5925,
+          "recall": 1.0,
+          "f1": 0.6957
+        },
+        "documentation": {
+          "count": 7,
+          "precision": 0.9191,
+          "recall": 0.9951,
+          "f1": 0.9496
+        },
+        "forum": {
+          "count": 7,
+          "precision": 0.5391,
+          "recall": 0.9999,
+          "f1": 0.6921
+        },
+        "listing": {
+          "count": 7,
+          "precision": 0.6193,
+          "recall": 0.854,
+          "f1": 0.6773
+        },
+        "product": {
+          "count": 7,
+          "precision": 0.6051,
+          "recall": 0.9908,
+          "f1": 0.7364
+        },
+        "service": {
+          "count": 7,
+          "precision": 0.5766,
+          "recall": 0.7264,
+          "f1": 0.6261
+        }
+      }
+    },
+    "resources": {
+      "peak_mem_mb": 2879.4,
+      "avg_mem_mb": 2740.8,
+      "peak_cpu_pct": 280.5,
+      "avg_cpu_pct": 77.9
+    }
+  },
+  "concurrency_sweep": {
+    "pagesift": {
+      "c1_qps": 26.38,
+      "c1_p50_ms": 4.564,
+      "c4_qps": 919.47,
+      "c4_p50_ms": 3.344,
+      "c4_wall_s": 0.055
+    },
+    "firecrawl": {
+      "c1_qps": 0.32,
+      "c1_p50_ms": 2019.828,
+      "c4_qps": 1.79,
+      "c4_p50_ms": 1540.729,
+      "c4_wall_s": 28.01
+    }
+  }
+}
