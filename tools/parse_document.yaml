@@ -1,6 +1,6 @@
 identity:
   name: parse_document
-  author: WU YUANCHAO
+  author: yolow92
   label:
     en_US: Parse Document to Markdown
     zh_Hans: 全格式文档转 Markdown
@@ -16,6 +16,7 @@ parameters:
   - name: file
     type: file
     required: false
+    form: llm
     label:
       en_US: Document File
       zh_Hans: 文档文件
@@ -29,6 +30,7 @@ parameters:
   - name: file_url
     type: string
     required: false
+    form: llm
     label:
       en_US: Document URL
       zh_Hans: 文档网络地址 (URL)
@@ -43,6 +45,7 @@ parameters:
     type: boolean
     required: false
     default: false
+    form: llm
     label:
       en_US: Enable OCR for Scanned Pages
       zh_Hans: 启用扫描件 OCR
@@ -52,3 +55,8 @@ parameters:
     llm_description:
       en_US: Whether to trigger OCR for scanned or image-only PDF pages.
       zh_Hans: 是否对扫描件启用 OCR 识别。
+
+extra:
+  python:
+    source: tools/parse_document.py
+

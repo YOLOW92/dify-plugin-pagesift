@@ -1,6 +1,6 @@
 version: 0.1.0
 type: plugin
-author: WU YUANCHAO
+author: yolow92
 name: pagesift
 label:
   en_US: PageSift Web & Document Ingestion

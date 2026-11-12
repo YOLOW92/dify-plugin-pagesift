@@ -1,6 +1,6 @@
 identity:
   name: crawl
-  author: WU YUANCHAO
+  author: yolow92
   label:
     en_US: Crawl Website
     zh_Hans: 深度网站爬取与结构化提取
@@ -16,6 +16,7 @@ parameters:
   - name: url
     type: string
     required: true
+    form: llm
     label:
       en_US: Root URL
       zh_Hans: 起始 URL
@@ -30,6 +31,7 @@ parameters:
     type: number
     required: false
     default: 5
+    form: llm
     label:
       en_US: Page Limit
       zh_Hans: 最大页面数
@@ -39,3 +41,8 @@ parameters:
     llm_description:
       en_US: Maximum number of pages to crawl.
       zh_Hans: 爬取的页面数量上限。
+
+extra:
+  python:
+    source: tools/crawl.py
+

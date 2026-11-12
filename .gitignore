@@ -1,4 +1,5 @@
 __pycache__/
 *.py[cod]
 bench/corpus/wcxb/*.html
+bench/corpus/wcxb_test/
 .DS_Store

@@ -1,62 +1,86 @@
+"""Read webpage to Markdown tool for Dify using PageSift."""
+
+from __future__ import annotations
+
 from collections.abc import Generator
 from typing import Any
-import requests
+import yaml
+
 from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
 
+from lib.client import PageSiftClient
+from lib.errors import (
+    PageSiftAuthError,
+    PageSiftError,
+    PageSiftRateLimitError,
+    PageSiftSSRFError,
+    PageSiftTimeoutError,
+)
+
+
 class ReadUrlTool(Tool):
     """
-    Sub-millisecond web extraction tool powered by PageSift and yolowhtml.
+    Sub-millisecond web extraction tool powered by PageSift.
     Extracts high-fidelity, noise-free Markdown and rich metadata.
     """
+
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage, None, None]:
         url = tool_parameters.get("url")
         if not url:
             yield self.create_text_message("Error: 'url' parameter is required.")
             return
 
-        base_url = (self.runtime.credentials.get("base_url") or "http://localhost:3002").rstrip("/")
-        api_key = self.runtime.credentials.get("api_key")
+        only_main_content = tool_parameters.get("only_main_content", True)
+        include_metadata = tool_parameters.get("include_metadata", True)
 
-        headers = {"Content-Type": "application/json"}
-        if api_key:
-            headers["Authorization"] = f"Bearer {api_key}"
-
-        payload = {
-            "url": url,
-            "formats": ["markdown"],
-            "onlyMainContent": tool_parameters.get("only_main_content", True),
-        }
+        credentials = self.runtime.credentials or {}
+        base_url = credentials.get("base_url") or "http://localhost:3002"
+        api_key = credentials.get("api_key")
 
         try:
-            resp = requests.post(
-                f"{base_url}/v1/scrape",
-                json=payload,
-                headers=headers,
-                timeout=30,
+            client = PageSiftClient(base_url=base_url, api_key=api_key)
+            result = client.scrape(
+                url=url,
+                formats=["markdown"],
+                only_main_content=bool(only_main_content),
             )
-            resp.raise_for_status()
-            data = resp.json()
 
-            if data.get("success"):
-                item_data = data.get("data", {})
-                markdown = item_data.get("markdown", "")
-                metadata = item_data.get("metadata", {})
+            data = result.get("data", {})
+            markdown = data.get("markdown", "")
+            metadata = data.get("metadata", {})
 
-                if tool_parameters.get("include_metadata", True) and metadata:
-                    meta_header = ["---"]
-                    for k, v in metadata.items():
-                        if v is not None and v != "":
-                            meta_header.append(f"{k}: {v}")
-                    meta_header.append("---\n")
-                    final_markdown = "\n".join(meta_header) + "\n" + markdown
+            if include_metadata and metadata:
+                # Render clean, safe YAML front-matter
+                clean_meta = {k: v for k, v in metadata.items() if v is not None and v != ""}
+                if clean_meta:
+                    front_matter = yaml.safe_dump(
+                        clean_meta,
+                        allow_unicode=True,
+                        sort_keys=False,
+                        default_flow_style=False,
+                    ).strip()
+                    final_content = f"---\n{front_matter}\n---\n\n{markdown}"
                 else:
-                    final_markdown = markdown
-
-                yield self.create_text_message(final_markdown)
-                yield self.create_json_message(item_data)
+                    final_content = markdown
             else:
-                error_msg = data.get("error", "Unknown extraction error")
-                yield self.create_text_message(f"Extraction failed: {error_msg}")
+                final_content = markdown
+
+            yield self.create_text_message(final_content)
+            yield self.create_json_message(data)
+
+        except PageSiftSSRFError as e:
+            yield self.create_text_message(f"Security Alert: Blocked target URL '{url}' due to SSRF policy: {e}")
+        except PageSiftAuthError as e:
+            yield self.create_text_message(f"Authentication Error: {e}")
+        except PageSiftRateLimitError as e:
+            msg = f"Rate Limit Exceeded: {e}"
+            if e.retry_after:
+                msg += f" Please retry after {e.retry_after:.1f} seconds."
+            yield self.create_text_message(msg)
+        except PageSiftTimeoutError as e:
+            yield self.create_text_message(f"Timeout Error: {e}")
+        except PageSiftError as e:
+            yield self.create_text_message(f"PageSift Extraction Error: {e}")
         except Exception as e:
-            yield self.create_text_message(f"PageSift request failed: {str(e)}")
+            yield self.create_text_message(f"Unexpected Error during extraction: {e}")

@@ -1,6 +1,6 @@
 identity:
   name: pagesift
-  author: WU YUANCHAO
+  author: yolow92
   label:
     en_US: PageSift
     zh_Hans: PageSift
@@ -38,3 +38,8 @@ tools:
   - tools/read_url.yaml
   - tools/parse_document.yaml
   - tools/crawl.yaml
+
+extra:
+  python:
+    source: provider/pagesift.py
+

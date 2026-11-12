@@ -1,6 +1,6 @@
 identity:
   name: read_url
-  author: WU YUANCHAO
+  author: yolow92
   label:
     en_US: Read Webpage to Markdown
     zh_Hans: 网页转高保真 Markdown
@@ -16,6 +16,7 @@ parameters:
   - name: url
     type: string
     required: true
+    form: llm
     label:
       en_US: Webpage URL
       zh_Hans: 网页 URL
@@ -30,6 +31,7 @@ parameters:
     type: boolean
     required: false
     default: true
+    form: llm
     label:
       en_US: Only Main Content
       zh_Hans: 仅提取正文
@@ -44,6 +46,7 @@ parameters:
     type: boolean
     required: false
     default: true
+    form: llm
     label:
       en_US: Include Metadata
       zh_Hans: 包含页面元数据
@@ -53,3 +56,8 @@ parameters:
     llm_description:
       en_US: Include metadata block at the beginning of the returned Markdown.
       zh_Hans: 是否包含元数据。
+
+extra:
+  python:
+    source: tools/read_url.py
+
