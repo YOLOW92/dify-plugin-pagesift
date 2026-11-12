@@ -1,0 +1,41 @@
+identity:
+  name: crawl
+  author: WU YUANCHAO
+  label:
+    en_US: Crawl Website
+    zh_Hans: 深度网站爬取与结构化提取
+  description:
+    human:
+      en_US: Crawl a website recursively and retrieve clean Markdown pages and link maps.
+      zh_Hans: 递归爬取指定网站，提取多页面纯净 Markdown 与站点拓扑。
+    llm:
+      en_US: Crawl an entire website or domain starting from a root URL.
+      zh_Hans: 针对目标网站从根链接发起深度递归爬取。
+
+parameters:
+  - name: url
+    type: string
+    required: true
+    label:
+      en_US: Root URL
+      zh_Hans: 起始 URL
+    human_description:
+      en_US: The root URL to begin crawling.
+      zh_Hans: 爬虫起始根链接。
+    llm_description:
+      en_US: Root URL of the site to crawl.
+      zh_Hans: 爬虫起始 URL。
+
+  - name: limit
+    type: number
+    required: false
+    default: 5
+    label:
+      en_US: Page Limit
+      zh_Hans: 最大页面数
+    human_description:
+      en_US: Maximum number of pages to crawl and return.
+      zh_Hans: 允许爬取并返回的最大页面数量限制。
+    llm_description:
+      en_US: Maximum number of pages to crawl.
+      zh_Hans: 爬取的页面数量上限。

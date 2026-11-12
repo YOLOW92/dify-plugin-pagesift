@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Document Sheet -->
+  <rect x="22" y="14" width="56" height="72" rx="8" fill="url(#primaryGrad)" filter="url(#shadow)"/>
+  <path d="M 62 14 L 78 30 L 62 30 Z" fill="#93C5FD" opacity="0.8"/>
+
+  <!-- Content lines -->
+  <rect x="30" y="38" width="40" height="4" rx="2" fill="#FFFFFF" opacity="0.9"/>
+  <rect x="30" y="48" width="32" height="4" rx="2" fill="#FFFFFF" opacity="0.75"/>
+  <rect x="30" y="58" width="36" height="4" rx="2" fill="#FFFFFF" opacity="0.75"/>
+
+  <!-- Sifting Bolt / Speed Accent -->
+  <polygon points="56,52 46,68 54,68 44,86 64,66 54,66" fill="url(#accentGrad)" stroke="#FFFFFF" stroke-width="2" filter="url(#shadow)"/>
+</svg>

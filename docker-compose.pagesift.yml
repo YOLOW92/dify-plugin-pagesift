@@ -1,0 +1,26 @@
+services:
+  # ==============================================================================
+  # PageSift: High-Performance Drop-in Ingestion Engine for Dify
+  # ==============================================================================
+  pagesift:
+    image: ghcr.io/yolow92/pagesift:latest
+    container_name: pagesift-engine
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - PAGESIFT_PORT=3002
+      - PAGESIFT_HOST=0.0.0.0
+    volumes:
+      - pagesift_data:/data
+    command: ["pagesift", "serve", "--port", "3002", "--host", "0.0.0.0", "--data-dir", "/data"]
+
+  # ==============================================================================
+  # Example Dify Configuration
+  # In Dify settings, simply configure Firecrawl Base URL:
+  #   FIRECRAWL_API_BASE: http://pagesift:3002
+  # ==============================================================================
+
+volumes:
+  pagesift_data:
+    driver: local
