@@ -7,9 +7,9 @@ identity:
 
 description:
   human:
-    en_US: Scrape any URL and extract noise-free, structure-preserving Markdown in sub-milliseconds powered by PageSift.
-    zh_Hans: 基于 PageSift 亚毫秒级解析网页，滤除噪点并提取纯净的 Markdown 与元数据。
-  llm: Scrape and extract clean Markdown content, title, and metadata from a web page URL. Ideal for retrieving up-to-date web information.
+    en_US: Scrape any URL into noise-free Markdown, RAG chunks, CSS-extracted JSON, or DataGraph provenance slices powered by PageSift 1.6.3.
+    zh_Hans: 基于 PageSift 1.6.3 亚毫秒级解析网页，输出纯净 Markdown、查询过滤片段、RAG 切片、零 LLM 结构化抽取与 DataGraph 证据切片。
+  llm: Scrape a web URL and return clean Markdown, title, and metadata. Optionally pass query_filter to keep only blocks relevant to a specific question.
 
 parameters:
   - name: url
@@ -20,8 +20,8 @@ parameters:
       en_US: Webpage URL
       zh_Hans: 网页 URL
     human_description:
-      en_US: The full target URL to fetch and parse.
-      zh_Hans: 需要抓取和解析的目标网页完整 URL。
+      en_US: The full target HTTP/HTTPS URL to fetch and parse.
+      zh_Hans: 需要抓取和解析的目标网页完整 HTTP/HTTPS URL。
     llm_description: Target web URL (http:// or https://) to scrape.
 
   - name: only_main_content
@@ -33,8 +33,8 @@ parameters:
       en_US: Only Main Content
       zh_Hans: 仅提取正文
     human_description:
-      en_US: Strip navigational elements, ads, and footers (1.000-F1 extraction).
-      zh_Hans: 自动滤除导航栏、侧边栏、广告及页脚，仅提取核心正文。
+      en_US: Strip navigational elements, ads, and footers to preserve main content.
+      zh_Hans: 自动滤除导航栏、侧边栏、广告及页脚，仅保留核心正文。
     llm_description: Whether to extract only the main article content (defaults to true).
 
   - name: include_metadata
@@ -46,11 +46,246 @@ parameters:
       en_US: Include Metadata
       zh_Hans: 包含页面元数据
     human_description:
-      en_US: Include title, description, publication date, and OpenGraph metadata.
-      zh_Hans: 在输出中包含页面标题、作者、发布日期及 OpenGraph 元数据。
-    llm_description: Include metadata block at the beginning of the returned Markdown.
+      en_US: Prepend title, author, publication date, and OpenGraph YAML frontmatter.
+      zh_Hans: 在输出顶部附加标题、作者、发布日期及 OpenGraph 元数据。
+    llm_description: Include YAML frontmatter metadata at the beginning of the returned Markdown.
+
+  - name: query_filter
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Query Filter (BM25)
+      zh_Hans: 查询相关性过滤 (BM25)
+    human_description:
+      en_US: Optional query string to keep only the most relevant Markdown blocks via BM25 scoring.
+      zh_Hans: 可选查询词：使用 BM25 仅保留与该问题高度相关的正文块，显著节省 Token。
+    llm_description: Optional query to filter long pages down to relevant blocks before returning Markdown.
+
+  - name: query_filter_max_tokens
+    type: number
+    required: false
+    form: form
+    min: 64
+    max: 100000
+    label:
+      en_US: Query Filter Max Tokens
+      zh_Hans: 查询过滤最大 Token 数
+    human_description:
+      en_US: Optional token ceiling when Query Filter is enabled.
+      zh_Hans: 启用查询相关性过滤时的 Token 上限。
+
+  - name: engine
+    type: select
+    required: false
+    default: auto
+    form: form
+    label:
+      en_US: Fetch Engine
+      zh_Hans: 抓取引擎模式
+    human_description:
+      en_US: auto (adaptive HTTP + browser fallback), http (fastest, no JS), or browser (force headless rendering).
+      zh_Hans: auto（自适应 HTTP + 浏览器回退）、http（极速纯 HTTP）或 browser（强制无头浏览器渲染）。
+    options:
+      - value: auto
+        label:
+          en_US: Auto (Adaptive)
+          zh_Hans: 自动（自适应）
+      - value: http
+        label:
+          en_US: HTTP Only
+          zh_Hans: 仅 HTTP
+      - value: browser
+        label:
+          en_US: Browser Render
+          zh_Hans: 浏览器渲染
+
+  - name: formats
+    type: string
+    required: false
+    default: markdown
+    form: form
+    label:
+      en_US: Output Formats
+      zh_Hans: 输出格式列表
+    human_description:
+      en_US: Comma-separated formats (e.g. markdown,links,images,html,rawHtml,changeTracking).
+      zh_Hans: 逗号分隔的输出格式列表（如 markdown,links,images,html,rawHtml,changeTracking）。
+
+  - name: include_tags
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Include CSS Selectors
+      zh_Hans: 仅保留 CSS 选择器
+    human_description:
+      en_US: Comma-separated CSS selectors to include before extraction (e.g. article,main,.content).
+      zh_Hans: 逗号分隔的 CSS 选择器，抓取提取前仅保留匹配区域。
+
+  - name: exclude_tags
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Exclude CSS Selectors
+      zh_Hans: 排除 CSS 选择器
+    human_description:
+      en_US: Comma-separated CSS selectors to drop before extraction (e.g. nav,footer,.ads).
+      zh_Hans: 逗号分隔的 CSS 选择器，抓取提取前移除匹配区域及其子树。
+
+  - name: extract_schema
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: CSS Extract Schema (JSON)
+      zh_Hans: 零 LLM 结构化抽取 Schema (JSON)
+    human_description:
+      en_US: Optional PageSift CSS extraction schema JSON (baseSelector + fields) with selector memory & auto-relocation.
+      zh_Hans: 可选 PageSift 零 LLM 结构化抽取 Schema JSON（baseSelector + fields），支持选择器记忆与改版自愈重定位。
+
+  - name: chunking_type
+    type: select
+    required: false
+    default: none
+    form: form
+    label:
+      en_US: RAG Chunking Strategy
+      zh_Hans: RAG 文本切片策略
+    human_description:
+      en_US: Optionally split extracted Markdown into structured chunks in Rust.
+      zh_Hans: 可选在 Rust 内核中直接将 Markdown 切分为结构化 RAG 分块。
+    options:
+      - value: none
+        label:
+          en_US: Disabled
+          zh_Hans: 不切片
+      - value: recursive
+        label:
+          en_US: Recursive (Structure-Aware)
+          zh_Hans: 递归结构切片 (recursive)
+      - value: headings
+        label:
+          en_US: By Headings
+          zh_Hans: 按标题层级 (headings)
+      - value: paragraphs
+        label:
+          en_US: By Paragraphs
+          zh_Hans: 按段落 (paragraphs)
+      - value: sentences
+        label:
+          en_US: By Sentences
+          zh_Hans: 按句子 (sentences)
+      - value: fixed_tokens
+        label:
+          en_US: Fixed Tokens
+          zh_Hans: 固定 Token (fixed_tokens)
+      - value: sliding_window
+        label:
+          en_US: Sliding Window
+          zh_Hans: 滑动窗口 (sliding_window)
+
+  - name: chunk_size
+    type: number
+    required: false
+    form: form
+    min: 32
+    max: 32768
+    label:
+      en_US: Chunk Size
+      zh_Hans: 切片大小
+    human_description:
+      en_US: Target chunk size (tokens or characters depending on strategy) when Chunking Strategy is enabled.
+      zh_Hans: 启用切片策略时的目标分块大小。
+
+  - name: image_assets
+    type: select
+    required: false
+    default: none
+    form: form
+    label:
+      en_US: Image Assets Mode
+      zh_Hans: 图片资产处理模式
+    human_description:
+      en_US: Control how page/PDF images are packaged (embed data URLs, attach Base64 metadata, or rewrite to asset://).
+      zh_Hans: 控制网页或 PDF 图片打包方式（embed 嵌入 data URL、attach 附带元数据或 rewrite 重写为 asset://）。
+    options:
+      - value: none
+        label:
+          en_US: Keep Original Links
+          zh_Hans: 保留原始链接
+      - value: embed
+        label:
+          en_US: Embed Data URLs
+          zh_Hans: 嵌入 Data URL (embed)
+      - value: attach
+        label:
+          en_US: Attach Metadata
+          zh_Hans: 附件元数据 (attach)
+      - value: rewrite
+        label:
+          en_US: Rewrite to asset://
+          zh_Hans: 重写为 asset:// (rewrite)
+
+  - name: enable_graph
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Enable DataGraph Extraction
+      zh_Hans: 启用 DataGraph 图谱抽取
+    human_description:
+      en_US: Extract citations, provenance, version lineage, evidence spans, and claims into data.graph (PageSift 1.4+).
+      zh_Hans: 抽取页面引文、溯源、版本谱系、字段证据区间与声明至 data.graph（PageSift 1.4+）。
+
+  - name: max_age
+    type: number
+    required: false
+    form: form
+    min: 0
+    label:
+      en_US: Cache Max Age (ms)
+      zh_Hans: 缓存最大有效期 (毫秒)
+    human_description:
+      en_US: Set to 0 to bypass the server cache and force a live fetch. Leave blank for server default (48h).
+      zh_Hans: 设为 0 可绕过服务端缓存强制实时抓取；留空使用服务端默认策略（48 小时）。
+
+output_schema:
+  type: object
+  properties:
+    markdown:
+      type: string
+      description: Extracted Markdown content (without frontmatter).
+    title:
+      type: string
+      description: Extracted page title.
+    url:
+      type: string
+      description: Final resolved page URL after redirects.
+    metadata:
+      type: object
+      description: Page metadata including OpenGraph and PageSift telemetry.
+    warnings:
+      type: array
+      items:
+        type: string
+      description: Diagnostic warnings reported by PageSift.
+    chunks:
+      type: array
+      items:
+        type: object
+      description: Structured RAG chunks when chunking is enabled.
+    extract:
+      type: array
+      items:
+        type: object
+      description: Structured items extracted by CSS extract_schema.
+    graph:
+      type: object
+      description: Per-page DataGraph slice when enable_graph is true.
 
 extra:
   python:
     source: tools/read_url.py
-

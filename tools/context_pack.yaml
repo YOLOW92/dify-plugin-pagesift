@@ -1,0 +1,379 @@
+identity:
+  name: context_pack
+  author: yolow92
+  label:
+    en_US: Compile Evidence ContextPack
+    zh_Hans: 证据上下文检索与 ContextPack 编译
+
+description:
+  human:
+    en_US: "PageSift 1.6.3 Context engine (/v2/context/pack, /search, /action): multi-strategy lexical/symbol/temporal retrieval, conflict co-retrieval, MustKeep table/qualifier/conflict preservation, token-budgeted ContextPack compilation with provenanceManifest, and optional VOI-governed acquisition."
+    zh_Hans: "PageSift 1.6.3 Context 引擎（/v2/context/pack、/search、/action）：支持词法/符号/时间语义检索（asOf/effectiveAt）、跨源冲突成对保留、表头与否定限定词 MustKeep 约束、Token 预算编译 ContextPack（附 provenanceManifest）及可选 VOI 边界补采。"
+  llm: "Retrieve and compile evidence-grounded, token-budgeted ContextPack Markdown with provenance citations and conflict preservation from persisted PageSift Context sources or inline documents."
+
+parameters:
+  - name: query
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Query / Information Need
+      zh_Hans: 查询问题 / 信息需求
+    human_description:
+      en_US: Question, exact symbol, or topic to retrieve and compile context for (required except for changes mode).
+      zh_Hans: 需要检索并编译上下文的问题、精确代码/错误符号或主题（除 changes 模式外必填）。
+    llm_description: Information need, exact identifier/symbol, or question to retrieve and compile context for.
+
+  - name: mode
+    type: select
+    required: false
+    default: pack
+    form: llm
+    label:
+      en_US: Execution Mode
+      zh_Hans: 执行模式
+    human_description:
+      en_US: "pack (default: search + token-budgeted ContextPack), search (ranked hits + 6 dimensions), or Action modes (verify, research, watch, changes, context)."
+      zh_Hans: "pack（默认：检索并编译预算受控 ContextPack）、search（返回多维检索报告）或 Action 模式（verify 核验 / research 调研 / watch 监控 / changes 变更流 / context 诊断）。"
+    llm_description: Context execution mode — pack (default), search, verify, research, watch, changes, or context.
+    options:
+      - value: pack
+        label:
+          en_US: Pack (Compile ContextPack)
+          zh_Hans: 编译 ContextPack (pack)
+      - value: search
+        label:
+          en_US: Search (Multi-Strategy Hits)
+          zh_Hans: 多策略检索 (search)
+      - value: verify
+        label:
+          en_US: Verify (Evidence Verification Action)
+          zh_Hans: 证据核验 (verify)
+      - value: research
+        label:
+          en_US: Research (VOI Bounded Action)
+          zh_Hans: 有界调研 (research)
+      - value: watch
+        label:
+          en_US: Watch (Freshness Action)
+          zh_Hans: 时效监控 (watch)
+      - value: changes
+        label:
+          en_US: Changes (Delta Stream Action)
+          zh_Hans: 变更检查 (changes)
+      - value: context
+        label:
+          en_US: Context (Diagnose + Pack Action)
+          zh_Hans: 覆盖度诊断编译 (context)
+
+  - name: source_ids
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Persisted Source IDs
+      zh_Hans: 持久化 Source ID 列表
+    human_description:
+      en_US: Comma-separated or JSON list of persisted Context/Loop source IDs to query (leave blank when passing inline documents).
+      zh_Hans: 逗号分隔或 JSON 数组的持久化 Context/Loop 数据源 ID（传入内联 documents 时可留空）。
+    llm_description: Comma-separated persisted Context source IDs to search across.
+
+  - name: documents
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Inline Documents (JSON, Stateless)
+      zh_Hans: 内联文档 JSON（无状态模式）
+    human_description:
+      en_US: Optional JSON array of {url, markdown, title, ...} or direct JSON output from read_url/parse_document/crawl/batch_scrape for stateless compilation without a Store.
+      zh_Hans: 可选内联文档 JSON（支持 {url, markdown} 数组，或直接传入 read_url / parse_document / crawl / batch_scrape 的 JSON 输出，无需持久化存储）。
+
+  - name: budget_tokens
+    type: number
+    required: false
+    default: 2048
+    form: llm
+    min: 64
+    max: 1048576
+    label:
+      en_US: Token Budget
+      zh_Hans: Token 预算上限
+    human_description:
+      en_US: Maximum token budget for compiledContext (default 2048, reserves 5% safety margin).
+      zh_Hans: ContextPack 编译的最大 Token 预算（默认 2048，自动预留 5% 防漂移安全余量）。
+    llm_description: Maximum token budget for compiledContext (default 2048).
+
+  - name: as_of
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Observation Cutoff (asOf)
+      zh_Hans: 观测时间截断 (asOf)
+    human_description:
+      en_US: Optional RFC-3339 timestamp or Unix ms string to prevent future leakage during temporal RAG.
+      zh_Hans: 可选 RFC-3339 时间或毫秒时间戳：按系统观测时刻回溯，防止未来信息泄漏。
+
+  - name: effective_at
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Business Validity Time (effectiveAt)
+      zh_Hans: 业务生效时刻 (effectiveAt)
+    human_description:
+      en_US: Optional RFC-3339 timestamp or Unix ms string for evaluating factual [validFrom, validUntil] validity.
+      zh_Hans: 可选 RFC-3339 时间或毫秒时间戳：用于评估事实在目标业务时刻的有效性（有效/已过期/未生效）。
+
+  - name: subject_key
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Entity Subject Key
+      zh_Hans: 实体主键过滤 (subjectKey)
+    human_description:
+      en_US: Optional entity subject key filter (e.g. sku:PRO-1).
+      zh_Hans: 可选实体主键过滤（如 sku:PRO-1）。
+
+  - name: required_fields
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Required Evidence Fields
+      zh_Hans: 必填证据字段
+    human_description:
+      en_US: Comma-separated field names that must have verified evidence support.
+      zh_Hans: 逗号分隔的必须具备已验证证据支持的字段名列表。
+
+  - name: selector
+    type: select
+    required: false
+    default: submodularClosure
+    form: form
+    label:
+      en_US: Pack Selector Algorithm
+      zh_Hans: 选块优化算法 (selector)
+    human_description:
+      en_US: Algorithm selecting KnowledgeUnits within budgetTokens.
+      zh_Hans: 在 Token 预算内挑选最优知识单元组合的算法。
+    options:
+      - value: submodularClosure
+        label:
+          en_US: Submodular Closure (Default)
+          zh_Hans: 次模闭包背包 (submodularClosure)
+      - value: boundedDpp
+        label:
+          en_US: Bounded DPP (Diversity)
+          zh_Hans: 有界行列式点过程 (boundedDpp)
+      - value: mmrGreedy
+        label:
+          en_US: MMR Greedy
+          zh_Hans: 最大边际相关性 (mmrGreedy)
+      - value: topKGreedy
+        label:
+          en_US: Top-K Greedy
+          zh_Hans: 贪心 Top-K (topKGreedy)
+
+  - name: ordering
+    type: select
+    required: false
+    default: edgeSalience
+    form: form
+    label:
+      en_US: Context Ordering
+      zh_Hans: 上下文排布策略 (ordering)
+    human_description:
+      en_US: edgeSalience places highest-utility and conflict-paired evidence at prompt start/end to avoid lost-in-the-middle.
+      zh_Hans: edgeSalience 将最高价值与冲突成对证据放在提示词首尾，缓解大模型中间遗忘。
+    options:
+      - value: edgeSalience
+        label:
+          en_US: Edge Salience (Default)
+          zh_Hans: 首尾显著性排布 (edgeSalience)
+      - value: scoreDescending
+        label:
+          en_US: Score Descending
+          zh_Hans: 相关度降序 (scoreDescending)
+      - value: documentOrder
+        label:
+          en_US: Document Order
+          zh_Hans: 文档原序 (documentOrder)
+
+  - name: must_keep_conflicts
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: MustKeep Conflict Pairs
+      zh_Hans: 强制成对保留冲突证据
+    human_description:
+      en_US: Keep opposing variants of active ConflictRecords paired together in ContextPack.
+      zh_Hans: 强制成对保留活跃冲突的双方证据，避免单边截断误导模型。
+
+  - name: must_keep_table_headers
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: MustKeep Table Headers
+      zh_Hans: 强制附带表格表头与标题
+    human_description:
+      en_US: Re-attach table captions and GFM header rows to any selected table slice.
+      zh_Hans: 选中表格片段时自动补全表头与 caption，防止列语义丢失。
+
+  - name: must_keep_qualifiers
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: MustKeep Qualifiers & Negations
+      zh_Hans: 强制保留限定词与否定条件
+    human_description:
+      en_US: Give retention priority to negations, exceptions, units, and currencies (e.g. unless, except, 不含).
+      zh_Hans: 优先保留包含否定、例外、单位与币种的限定语句。
+
+  - name: include_unverified
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Include Unverified Units
+      zh_Hans: 包含未验证单元
+    human_description:
+      en_US: Include units marked unverified after transient decode/truncation warnings.
+      zh_Hans: 是否包含因解码/截断告警被标为 unverified 的知识单元。
+
+  - name: enable_semantic_sketch
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Enable Semantic Sketch
+      zh_Hans: 启用轻量语义草图
+    human_description:
+      en_US: Enable zero-dependency character-trigram semantic sketch fallback (disable for strict lexical/symbol search).
+      zh_Hans: 启用零外部依赖字符三元组语义草图（严格词法/符号检索时可关闭）。
+
+  - name: allow_network_acquisition
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Allow VOI Network Acquisition (Action Modes)
+      zh_Hans: 允许 VOI 有界网络补采（仅 Action 模式）
+    human_description:
+      en_US: Explicitly permit bounded network fetches when existing Context has coverage gaps (strictly obeys allowedHosts, SSRF, robots.txt, and quotas).
+      zh_Hans: 在 Action 模式下显式允许当本地证据不足时按 VOI 预算执行有界补采（严格遵守 allowedHosts、SSRF、robots 与配额）。
+
+  - name: candidate_urls
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Candidate URLs (Action Modes)
+      zh_Hans: 候选补采 URL（Action 模式）
+    human_description:
+      en_US: Newline- or comma-separated candidate URLs for research/verify/watch acquisition.
+      zh_Hans: 换行或逗号分隔的候选 URL，供 research/verify/watch 模式按需补采。
+
+  - name: allowed_hosts
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Allowed Hosts Allowlist
+      zh_Hans: 允许域名白名单 (allowedHosts)
+    human_description:
+      en_US: Comma-separated strict hostname allowlist enforced across fetches, redirects, and browser sub-requests.
+      zh_Hans: 逗号分隔的严格域名白名单（覆盖抓取、重定向与浏览器子请求）。
+
+  - name: max_acquisition_requests
+    type: number
+    required: false
+    default: 4
+    form: form
+    min: 0
+    max: 64
+    label:
+      en_US: Max Acquisition Requests
+      zh_Hans: 单次最大补采请求数
+    human_description:
+      en_US: Hard cap on network requests during one Action execution (0–64).
+      zh_Hans: 单次 Action 最多发起的网络请求硬上限（0–64）。
+
+  - name: min_independent_sources
+    type: number
+    required: false
+    default: 1
+    form: form
+    min: 1
+    max: 256
+    label:
+      en_US: Min Independent Sources
+      zh_Hans: 最小独立信源数
+    human_description:
+      en_US: Minimum independent origin roots required before verify/research considers coverage sufficient.
+      zh_Hans: 核验/调研判定覆盖充分所需的最小独立起源信源数。
+
+  - name: max_staleness_ms
+    type: number
+    required: false
+    form: form
+    min: 0
+    label:
+      en_US: Max Staleness (ms)
+      zh_Hans: 最大可接受过期时长 (毫秒)
+    human_description:
+      en_US: Maximum acceptable age of persisted observations before triggering refresh in Action modes.
+      zh_Hans: 持久化观测允许的最大陈旧时长（毫秒），超期后可在 Action 模式下触发刷新。
+
+  - name: since_delta_seq
+    type: number
+    required: false
+    form: form
+    min: 0
+    label:
+      en_US: Since Delta Sequence (changes mode)
+      zh_Hans: 起始 Delta 序号 (changes 模式)
+    human_description:
+      en_US: Return ContextDeltas strictly after this sequence number in changes mode.
+      zh_Hans: 在 changes 模式下返回严格大于该序号的增量变更流。
+
+output_schema:
+  type: object
+  properties:
+    compiled_context:
+      type: string
+      description: Compiled token-budgeted Markdown context ready for LLM prompts.
+    provenance_manifest:
+      type: array
+      items:
+        type: object
+      description: Citation & provenance entries linking compiled sections to KnowledgeUnits and source locations.
+    stopping_reason:
+      type: string
+      description: Explicit Action stopping reason (sufficient, voiBelowCost, budgetExhausted, permissionRestricted, noNewEvidence, resyncRequired, etc.).
+    budget_insufficient:
+      type: boolean
+      description: True if budget_tokens was too tight to fit all MustKeep constraints.
+    warnings:
+      type: array
+      items:
+        type: string
+      description: Diagnostic warnings (e.g. learn_state_corrupt, context_index_corrupt_rebuilt).
+    result:
+      type: object
+      description: Full raw JSON response from PageSift /v2/context/{pack,search,action}.
+
+extra:
+  python:
+    source: tools/context_pack.py

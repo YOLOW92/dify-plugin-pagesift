@@ -2,14 +2,14 @@ identity:
   name: parse_document
   author: yolow92
   label:
-    en_US: Parse Document to Markdown
-    zh_Hans: 全格式文档转 Markdown
+    en_US: Parse Document & Code to Markdown
+    zh_Hans: 全格式文档与代码转 Markdown
 
 description:
   human:
-    en_US: Parse PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx), EPUB, and CSV into structured LLM Markdown with sub-second speed.
-    zh_Hans: 毫秒级解析 PDF、Word (.docx)、Excel (.xlsx)、PPT (.pptx)、EPUB 及 CSV，生成高保真结构化 Markdown。
-  llm: Parse document files (PDF, Word, Excel, PowerPoint, CSV) into clean Markdown. Excels at preserving complex tables and formatting.
+    en_US: Parse PDF (text + optional PP-OCRv6), Office (.docx/.doc/.xlsx/.xls/.xlsb/.pptx/.ppt), OpenDocument, RTF, HWP, EPUB/MOBI, Email (.eml/.mbox/.msg), Archives (.zip/.tar/.7z), SQLite/CSV, Images (OCR), Notebooks, and 373 code languages into structured Markdown via PageSift 1.6.3.
+    zh_Hans: 基于 PageSift 1.6.3 毫秒级解析 PDF（含可选 PP-OCRv6）、新旧 Office、OpenDocument、RTF/HWP、EPUB/MOBI、邮件、压缩包、SQLite/CSV、图片 OCR、Notebook 及 373 种源代码，生成高保真 Markdown 与 RAG 切片。
+  llm: Parse uploaded documents, archives, images (with OCR), spreadsheets, PDFs, or source code files into clean structured Markdown. Preserves tables, layout, and code AST sections.
 
 parameters:
   - name: file
@@ -20,8 +20,8 @@ parameters:
       en_US: Document File
       zh_Hans: 文档文件
     human_description:
-      en_US: The uploaded document file (supports PDF, DOCX, XLSX, PPTX, EPUB, CSV).
-      zh_Hans: 在 Dify 工作流中上传的文档对象（支持 PDF、Word、Excel、PPT、EPUB、CSV）。
+      en_US: Uploaded file object (PDF, Office, OpenDocument, EPUB/MOBI, Email, Archives, SQLite, CSV, Images, Notebooks, or 373 code languages).
+      zh_Hans: Dify 工作流中上传的文件对象（支持 PDF、新旧 Office、OpenDocument、电子书、邮件、压缩包、SQLite/CSV、图片、Notebook 及 373 种源码）。
     llm_description: The file object from user upload or workflow variables to parse.
 
   - name: file_url
@@ -32,9 +32,9 @@ parameters:
       en_US: Document URL
       zh_Hans: 文档网络地址 (URL)
     human_description:
-      en_US: Public HTTP/HTTPS URL of the document file to fetch and parse.
-      zh_Hans: 需要下载并解析的目标文档公开 URL。
-    llm_description: URL of the document (PDF, DOCX, XLSX, PPTX, CSV) to parse.
+      en_US: Public HTTP/HTTPS URL of the document file to fetch and parse (SSRF & 50MB stream guarded).
+      zh_Hans: 需要下载并解析的目标文档公开 URL（受逐跳 SSRF 与 50MB 流式限制保护）。
+    llm_description: Public URL of the document to download and parse.
 
   - name: enable_ocr
     type: boolean
@@ -42,14 +42,204 @@ parameters:
     default: false
     form: llm
     label:
-      en_US: Enable OCR for Scanned Pages
-      zh_Hans: 启用扫描件 OCR
+      en_US: Force OCR for Scanned Pages
+      zh_Hans: 强制启用扫描件 OCR
     human_description:
-      en_US: Enable pure-Rust OCR engine for scanned PDF pages without text layers.
-      zh_Hans: 针对无文本层的扫描版 PDF，调用纯 Rust OCR 引擎识别文字。
-    llm_description: Whether to trigger OCR for scanned or image-only PDF pages.
+      en_US: Force PDF parser mode='ocr' (requires PageSift server started with --ocr / [ocr] enabled = true).
+      zh_Hans: 强制以 PDF mode='ocr' 模式解析（需 PageSift 服务端已启用 --ocr 或 [ocr] enabled = true）。
+    llm_description: Set true to force OCR on scanned PDF pages (requires server OCR enabled).
+
+  - name: query_filter
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Query Filter (BM25)
+      zh_Hans: 查询相关性过滤 (BM25)
+    human_description:
+      en_US: Optional query to keep only the most relevant blocks from large documents.
+      zh_Hans: 可选查询词：从长文档中仅保留与该问题最相关的文本块。
+    llm_description: Optional query to filter a long document down to relevant blocks.
+
+  - name: pdf_mode
+    type: select
+    required: false
+    default: auto
+    form: form
+    label:
+      en_US: PDF Parser Mode
+      zh_Hans: PDF 解析模式
+    human_description:
+      en_US: auto (text layer + OCR fallback if server OCR enabled), fast (text layer only), or ocr (OCR every page with images).
+      zh_Hans: auto（优先文本层，服务端开启 OCR 时自动兜底扫描页）、fast（仅文本层）或 ocr（对含图页面强制 OCR）。
+    options:
+      - value: auto
+        label:
+          en_US: Auto (Default)
+          zh_Hans: 自动（默认）
+      - value: fast
+        label:
+          en_US: Fast (Text Layer Only)
+          zh_Hans: 极速（仅文本层）
+      - value: ocr
+        label:
+          en_US: OCR (Force Optical Recognition)
+          zh_Hans: 强制 OCR
+
+  - name: max_pages
+    type: number
+    required: false
+    form: form
+    min: 1
+    max: 10000
+    label:
+      en_US: Max PDF Pages
+      zh_Hans: PDF 最大解析页数
+    human_description:
+      en_US: Parse only the first N pages of a PDF (1–10000).
+      zh_Hans: 仅解析 PDF 的前 N 页（1–10000）。
+
+  - name: per_page
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Return Per-Page Markdown
+      zh_Hans: 返回分页 Markdown
+    human_description:
+      en_US: Include per-page Markdown array in data.pages (PDF only).
+      zh_Hans: 额外在 data.pages 中返回按页拆分的 Markdown 数组（仅 PDF）。
+
+  - name: source_url
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Original HTML URL (Optional)
+      zh_Hans: 上传 HTML 原地址（可选）
+    human_description:
+      en_US: Base URL for resolving relative links in uploaded HTML files (never fetched by PageSift).
+      zh_Hans: 上传 HTML 文件的原网址，用于解析相对链接（PageSift 不会主动请求该地址）。
+
+  - name: chunking_type
+    type: select
+    required: false
+    default: none
+    form: form
+    label:
+      en_US: RAG Chunking Strategy
+      zh_Hans: RAG 文本切片策略
+    human_description:
+      en_US: Optionally split parsed document Markdown into structured RAG chunks in Rust.
+      zh_Hans: 可选在 Rust 内核中直接对文档解析结果做结构化切片。
+    options:
+      - value: none
+        label:
+          en_US: Disabled
+          zh_Hans: 不切片
+      - value: recursive
+        label:
+          en_US: Recursive (Structure-Aware)
+          zh_Hans: 递归结构切片 (recursive)
+      - value: headings
+        label:
+          en_US: By Headings
+          zh_Hans: 按标题层级 (headings)
+      - value: paragraphs
+        label:
+          en_US: By Paragraphs
+          zh_Hans: 按段落 (paragraphs)
+      - value: fixed_tokens
+        label:
+          en_US: Fixed Tokens
+          zh_Hans: 固定 Token (fixed_tokens)
+
+  - name: chunk_size
+    type: number
+    required: false
+    form: form
+    min: 32
+    max: 32768
+    label:
+      en_US: Chunk Size
+      zh_Hans: 切片大小
+    human_description:
+      en_US: Target chunk size when Chunking Strategy is enabled.
+      zh_Hans: 启用切片策略时的目标分块大小。
+
+  - name: image_assets
+    type: select
+    required: false
+    default: none
+    form: form
+    label:
+      en_US: Embedded Image Assets
+      zh_Hans: 内嵌图片提取模式
+    human_description:
+      en_US: Extract PDF XObject images and Office media (embed data URLs, attach metadata, or rewrite to asset://).
+      zh_Hans: 提取 PDF 内嵌图像与 Office 媒体文件（embed / attach / rewrite）。
+    options:
+      - value: none
+        label:
+          en_US: Disabled
+          zh_Hans: 不提取
+      - value: embed
+        label:
+          en_US: Embed Data URLs
+          zh_Hans: 嵌入 Data URL (embed)
+      - value: attach
+        label:
+          en_US: Attach Metadata
+          zh_Hans: 附件元数据 (attach)
+      - value: rewrite
+        label:
+          en_US: Rewrite to asset://
+          zh_Hans: 重写为 asset:// (rewrite)
+
+  - name: enable_graph
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Enable DataGraph Extraction
+      zh_Hans: 启用 DataGraph 抽取
+    human_description:
+      en_US: Extract document citations, evidence spans, and claims into data.graph (PageSift 1.4+).
+      zh_Hans: 提取文档引文、证据区间与声明至 data.graph（PageSift 1.4+）。
+
+output_schema:
+  type: object
+  properties:
+    markdown:
+      type: string
+      description: Parsed Markdown content.
+    filename:
+      type: string
+      description: Resolved document filename.
+    metadata:
+      type: object
+      description: Document metadata (title, numPages, totalPages, OCR telemetry, timings).
+    warnings:
+      type: array
+      items:
+        type: string
+      description: Diagnostic warnings (e.g. decode fallback, scanned_pages_without_ocr, pdf_repaired).
+    pages:
+      type: array
+      items:
+        type: object
+      description: Per-page Markdown entries when per_page=true on PDFs.
+    chunks:
+      type: array
+      items:
+        type: object
+      description: Structured RAG chunks when chunking is enabled.
+    graph:
+      type: object
+      description: Document DataGraph slice when enable_graph is true.
 
 extra:
   python:
     source: tools/parse_document.py
-

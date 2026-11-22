@@ -1,0 +1,140 @@
+identity:
+  name: query_graph
+  author: yolow92
+  label:
+    en_US: Query DataGraph (History, Conflicts & Claims)
+    zh_Hans: DataGraph 证据图谱与冲突查询
+
+description:
+  human:
+    en_US: Query PageSift 1.4–1.6.3 DataGraph provenance (/v2/crawl/{id}/graph, /v2/graph/history, /v2/graph/conflicts, /v2/graph/claims) for crawl graph summaries, cross-time version lineage, cross-source conflicts, and point-in-time asOf claim lifecycles.
+    zh_Hans: 查询 PageSift 1.4–1.6.3 DataGraph 证据图谱：支持站点爬取图谱摘要（crawl_graph）、URL 跨时间版本谱系（history）、跨信源冲突检测（conflicts）以及支持 asOf 时间旅行的声明生命周期查询（claims）。
+  llm: Query PageSift DataGraph for crawl citation/fact summaries, historical versions of a URL, cross-source factual conflicts, or claim lifecycle records with optional asOf time travel.
+
+parameters:
+  - name: query_type
+    type: select
+    required: true
+    default: conflicts
+    form: llm
+    label:
+      en_US: Query Type
+      zh_Hans: 图谱查询类型
+    human_description:
+      en_US: Choose crawl_graph (by job_id), history (by url), conflicts (by optional subject), or claims (by optional url/subject).
+      zh_Hans: 选择查询模式：crawl_graph（按爬虫任务 ID）、history（按 URL 查版本演进）、conflicts（跨源冲突）或 claims（声明生命周期）。
+    llm_description: Graph query type — crawl_graph, history, conflicts, or claims.
+    options:
+      - value: crawl_graph
+        label:
+          en_US: Crawl Job Graph Summary
+          zh_Hans: 爬取任务图谱摘要 (crawl_graph)
+      - value: history
+        label:
+          en_US: URL Version History
+          zh_Hans: URL 历史版本谱系 (history)
+      - value: conflicts
+        label:
+          en_US: Cross-Source Conflicts
+          zh_Hans: 跨信源冲突检测 (conflicts)
+      - value: claims
+        label:
+          en_US: Claim Lifecycle Records
+          zh_Hans: 声明生命周期记录 (claims)
+
+  - name: job_id
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Crawl Job ID (crawl_graph)
+      zh_Hans: 爬虫任务 ID (crawl_graph)
+    human_description:
+      en_US: Crawl job ID returned by crawl tool when query_type='crawl_graph'.
+      zh_Hans: query_type='crawl_graph' 时由 crawl 工具返回的 job_id。
+    llm_description: Crawl job ID when query_type='crawl_graph'.
+
+  - name: url
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Resource URL / Key (history / claims)
+      zh_Hans: 资源 URL 或规范化 Key (history / claims)
+    human_description:
+      en_US: Target URL or normalized resource key (required for history, optional filter for claims).
+      zh_Hans: 目标 URL 或规范化资源键（history 必填，claims 可选过滤）。
+    llm_description: URL or resource key for history or claims queries.
+
+  - name: subject
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Entity Subject Key (conflicts / claims)
+      zh_Hans: 实体主键 (conflicts / claims)
+    human_description:
+      en_US: Optional entity subject key filter (e.g. sku:PRO-1) for conflicts or claims.
+      zh_Hans: 可选实体主键过滤（如 sku:PRO-1），用于冲突或声明查询。
+    llm_description: Optional entity subject key filter for conflicts or claims.
+
+  - name: as_of
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Point-in-Time Cutoff (asOf)
+      zh_Hans: 历史时间截断 (asOf)
+    human_description:
+      en_US: Optional RFC-3339 timestamp or Unix ms string for time-travel history/conflicts/claims reconstruction.
+      zh_Hans: 可选 RFC-3339 时间或毫秒时间戳，按历史时刻回溯图谱状态。
+
+  - name: limit
+    type: number
+    required: false
+    default: 50
+    form: form
+    min: 1
+    max: 1000
+    label:
+      en_US: Result Limit
+      zh_Hans: 返回条数上限
+    human_description:
+      en_US: Maximum records to return (bounded by PageSift store defaults).
+      zh_Hans: 最大返回记录条数。
+
+  - name: offset
+    type: number
+    required: false
+    default: 0
+    form: form
+    min: 0
+    label:
+      en_US: Pagination Offset (conflicts / claims)
+      zh_Hans: 分页偏移量 (conflicts / claims)
+    human_description:
+      en_US: Pagination offset for conflicts or claims queries.
+      zh_Hans: 冲突或声明列表查询的分页偏移量。
+
+output_schema:
+  type: object
+  properties:
+    query_type:
+      type: string
+      description: Executed DataGraph query type.
+    total:
+      type: number
+      description: Total records returned or matched.
+    truncated:
+      type: boolean
+      description: True if results hit store query bounds.
+    history_unavailable:
+      type: boolean
+      description: True if complete point-in-time history could not be reconstructed for asOf.
+    result:
+      type: object
+      description: Full JSON response from PageSift DataGraph endpoint.
+
+extra:
+  python:
+    source: tools/query_graph.py

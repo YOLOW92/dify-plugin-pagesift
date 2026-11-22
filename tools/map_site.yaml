@@ -1,0 +1,127 @@
+identity:
+  name: map_site
+  author: yolow92
+  label:
+    en_US: Map Website URLs
+    zh_Hans: 站点链接地图发现
+
+description:
+  human:
+    en_US: Quickly list a website's URLs from sitemaps, robots.txt, and homepage links without fetching every page (POST /v2/map).
+    zh_Hans: 基于 PageSift 1.6.3（/v2/map）快速从 Sitemap、robots.txt 与首页链接提取站点 URL 清单，支持关键词相关性排序。
+  llm: Discover and rank URLs on a website using sitemaps and homepage links without scraping full page content.
+
+parameters:
+  - name: url
+    type: string
+    required: true
+    form: llm
+    label:
+      en_US: Website URL
+      zh_Hans: 站点 URL
+    human_description:
+      en_US: Root HTTP/HTTPS URL of the website to map.
+      zh_Hans: 需要发现链接的目标站点根 URL。
+    llm_description: Root HTTP/HTTPS URL of the website to map.
+
+  - name: search
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Search Filter / Rank Term
+      zh_Hans: 关键词优先排序
+    human_description:
+      en_US: Optional search term to rank matching URLs first in the list.
+      zh_Hans: 可选关键词：优先将最相关的 URL 排在结果最前面。
+    llm_description: Optional search term to prioritize related URLs first.
+
+  - name: limit
+    type: number
+    required: false
+    default: 100
+    form: llm
+    min: 1
+    max: 100000
+    label:
+      en_US: Max URLs
+      zh_Hans: 最大返回链接数
+    human_description:
+      en_US: Maximum number of URLs to return after ranking (1–100000, default 100).
+      zh_Hans: 排序后返回的最大链接数量（1–100000，默认 100）。
+    llm_description: Maximum number of URLs to return (defaults to 100).
+
+  - name: sitemap
+    type: select
+    required: false
+    default: include
+    form: form
+    label:
+      en_US: Sitemap Mode
+      zh_Hans: Sitemap 策略
+    human_description:
+      en_US: include (sitemaps + homepage links), only (sitemaps only), or skip (homepage links only).
+      zh_Hans: include（Sitemap 与首页链接结合）、only（仅 Sitemap）或 skip（跳过 Sitemap）。
+    options:
+      - value: include
+        label:
+          en_US: Include Sitemaps + Links
+          zh_Hans: Sitemap + 首页链接 (include)
+      - value: only
+        label:
+          en_US: Sitemaps Only
+          zh_Hans: 仅 Sitemap (only)
+      - value: skip
+        label:
+          en_US: Skip Sitemaps
+          zh_Hans: 跳过 Sitemap (skip)
+
+  - name: include_subdomains
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Include Subdomains
+      zh_Hans: 包含子域名
+    human_description:
+      en_US: Include links belonging to subdomains of the same registrable domain.
+      zh_Hans: 包含同一主域名下的子域名链接。
+
+  - name: ignore_query_parameters
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Deduplicate Query Parameters
+      zh_Hans: 忽略 URL 查询参数去重
+    human_description:
+      en_US: Treat URLs differing only in query string parameters as one URL.
+      zh_Hans: 将仅查询参数不同的 URL 合并去重。
+
+output_schema:
+  type: object
+  properties:
+    count:
+      type: number
+      description: Number of URLs discovered.
+    urls:
+      type: array
+      items:
+        type: string
+      description: Flat list of discovered URL strings.
+    links:
+      type: array
+      items:
+        type: object
+      description: Detailed MapLink objects with url, optional title, and description.
+    warnings:
+      type: array
+      items:
+        type: string
+      description: Diagnostic warnings returned by PageSift.
+
+extra:
+  python:
+    source: tools/map_site.py

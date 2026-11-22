@@ -5,8 +5,8 @@ identity:
     en_US: PageSift
     zh_Hans: PageSift
   description:
-    en_US: High-performance Rust-based web scraping, document extraction (PDF, DOCX, XLSX, PPTX, CSV), and LLM Markdown conversion engine.
-    zh_Hans: 基于纯 Rust 的高性能网页抓取、全格式文档抽取（PDF/Word/Excel/PPT/CSV）与高质量 Markdown 转换引擎。
+    en_US: Pure-Rust PageSift 1.6.3 web scraping, full-format document/code parsing, adaptive crawling, site mapping, DataGraph, Loop sync, and evidence-grounded ContextPack compilation.
+    zh_Hans: 基于纯 Rust PageSift 1.6.3 的极速网页抓取、全格式文档与代码解析、自适应爬虫、站点地图、DataGraph 图谱、Loop 增量同步与 ContextPack 上下文编译引擎。
   icon: icon.svg
 
 credentials_for_provider:
@@ -21,8 +21,8 @@ credentials_for_provider:
       en_US: "e.g. http://localhost:3002 or http://pagesift:3002"
       zh_Hans: "例如 http://localhost:3002 或 http://pagesift:3002"
     help:
-      en_US: "Address of your self-hosted or remote PageSift instance."
-      zh_Hans: "您自建或远程的 PageSift 服务端点地址。"
+      en_US: "Address of your self-hosted or remote PageSift 1.6.3 HTTP server."
+      zh_Hans: "自建或远程 PageSift 1.6.3 HTTP 服务端点地址。"
 
   api_key:
     type: secret-input
@@ -31,15 +31,50 @@ credentials_for_provider:
       en_US: API Key
       zh_Hans: API 密钥
     placeholder:
-      en_US: "Optional bearer token if authentication is enabled"
-      zh_Hans: "若 PageSift 启用了认证，请输入对应 API Key"
+      en_US: "Bearer token when authentication is enabled"
+      zh_Hans: "服务端启用鉴权时的 Bearer Token"
+    help:
+      en_US: "Scopes jobs, quotas, DataGraph, Loop sources, and Context to the key's isolated tenant (or shared [[server.keys]].account in PageSift 1.6.1+)."
+      zh_Hans: "用于隔离任务、配额、DataGraph、Loop 数据源与 Context 租户（PageSift 1.6.1+ 中多个 Key 需配置相同 [[server.keys]].account 才共享租户）。"
+
+  session_id:
+    type: text-input
+    required: false
+    label:
+      en_US: Anonymous Session ID (Optional)
+      zh_Hans: 匿名会话隔离 ID（可选）
+    placeholder:
+      en_US: "e.g. dify-workspace-prod"
+      zh_Hans: "例如 dify-workspace-prod"
+    help:
+      en_US: "Sent as X-Session-Id to isolate DataGraph/Context state per workspace when PageSift runs without API keys."
+      zh_Hans: "当 PageSift 以无密钥匿名模式运行时，作为 X-Session-Id 请求头发送，用于隔离不同工作空间的 DataGraph/Context 状态。"
+
+  default_timeout:
+    type: text-input
+    required: false
+    default: "30"
+    label:
+      en_US: Default Request Timeout (seconds)
+      zh_Hans: 默认请求超时（秒）
+    placeholder:
+      en_US: "30"
+      zh_Hans: "30"
+    help:
+      en_US: "Default per-request timeout in seconds (1–300). Individual tools may override for long crawls or OCR parsing."
+      zh_Hans: "默认单次请求超时秒数（1–300），长爬虫或大型 OCR 文档解析可在工具内覆盖。"
 
 tools:
   - tools/read_url.yaml
   - tools/parse_document.yaml
   - tools/crawl.yaml
+  - tools/map_site.yaml
+  - tools/batch_scrape.yaml
+  - tools/context_pack.yaml
+  - tools/context_ingest.yaml
+  - tools/sync_source.yaml
+  - tools/query_graph.yaml
 
 extra:
   python:
     source: provider/pagesift.py
-

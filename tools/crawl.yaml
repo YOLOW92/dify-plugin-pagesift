@@ -2,14 +2,14 @@ identity:
   name: crawl
   author: yolow92
   label:
-    en_US: Crawl Website
-    zh_Hans: 深度网站爬取与结构化提取
+    en_US: Crawl Website (Adaptive & DataGraph)
+    zh_Hans: 深度网站爬取（自适应与图谱）
 
 description:
   human:
-    en_US: Crawl a website recursively and retrieve clean Markdown pages and link maps.
-    zh_Hans: 递归爬取指定网站，提取多页面纯净 Markdown 与站点拓扑。
-  llm: Crawl an entire website or domain starting from a root URL.
+    en_US: Recursively crawl a website via PageSift 1.6.3 (/v2/crawl) with query-directed prioritization, adaptive early stopping, linked PDF/Office attachments, pagination, and optional site-wide DataGraph summary.
+    zh_Hans: 基于 PageSift 1.6.3（/v2/crawl）深度爬取网站，支持查询导向优先排序、自适应早停、自动抓取关联 PDF/Office 附件、自动分页与站点级 DataGraph 图谱汇总。
+  llm: Crawl a website starting from a root URL. Pass query to prioritize relevant pages and stop adaptively when coverage is reached.
 
 parameters:
   - name: url
@@ -20,7 +20,7 @@ parameters:
       en_US: Root URL
       zh_Hans: 起始 URL
     human_description:
-      en_US: The root URL to begin crawling.
+      en_US: The root HTTP/HTTPS URL to begin crawling.
       zh_Hans: 爬虫起始根链接。
     llm_description: Root URL of the site to crawl.
 
@@ -29,15 +29,229 @@ parameters:
     required: false
     default: 5
     form: llm
+    min: 1
+    max: 500
     label:
       en_US: Page Limit
       zh_Hans: 最大页面数
     human_description:
-      en_US: Maximum number of pages to crawl and return.
-      zh_Hans: 允许爬取并返回的最大页面数量限制。
-    llm_description: Maximum number of pages to crawl.
+      en_US: Maximum number of pages to crawl and collect (1–500).
+      zh_Hans: 允许爬取并返回的最大页面数量上限（1–500）。
+    llm_description: Maximum number of pages to crawl (1 to 500, defaults to 5).
+
+  - name: query
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Focused Crawl Query
+      zh_Hans: 查询导向关键词
+    human_description:
+      en_US: Optional query to prioritize relevant links first (PageSift focused crawl).
+      zh_Hans: 可选查询词：优先抓取与该主题最相关的页面。
+    llm_description: Optional topic or question to focus the crawl on the most relevant pages.
+
+  - name: adaptive
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Adaptive Early Stop
+      zh_Hans: 自适应早停
+    human_description:
+      en_US: When query is provided, automatically stop once query coverage saturates instead of hitting limit.
+      zh_Hans: 配合 query 使用：当信息覆盖饱和或无更多相关页面时自动早停，节省抓取预算。
+
+  - name: attachments
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Fetch Linked PDF/Office Attachments
+      zh_Hans: 抓取关联 PDF/Office 附件
+    human_description:
+      en_US: With query enabled, also download and parse same-site PDF/Office documents linked from relevant pages.
+      zh_Hans: 配合 query 使用：自动下载并解析相关页面中链接的同站点 PDF/Office 文档。
+
+  - name: max_discovery_depth
+    type: number
+    required: false
+    form: form
+    min: 0
+    max: 100
+    label:
+      en_US: Max Discovery Depth
+      zh_Hans: 最大发现深度
+    human_description:
+      en_US: Maximum link hops away from the root URL.
+      zh_Hans: 从起始 URL 出发允许跟进的最大链接层级。
+
+  - name: scope
+    type: select
+    required: false
+    default: auto
+    form: form
+    label:
+      en_US: Path Scope
+      zh_Hans: 路径爬取范围
+    human_description:
+      en_US: Controls how far the crawl may leave the seed's directory.
+      zh_Hans: 控制爬虫离开起始路径目录的范围策略。
+    options:
+      - value: auto
+        label:
+          en_US: Auto (Default)
+          zh_Hans: 自动（默认）
+      - value: exact
+        label:
+          en_US: Exact Directory
+          zh_Hans: 仅当前目录 (exact)
+      - value: parent
+        label:
+          en_US: Parent Directory
+          zh_Hans: 上级目录 (parent)
+      - value: domain
+        label:
+          en_US: Entire Domain
+          zh_Hans: 整站域名 (domain)
+
+  - name: include_paths
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Include Path Regexes
+      zh_Hans: 包含路径正则
+    human_description:
+      en_US: Comma- or newline-separated regex patterns of URL paths to keep.
+      zh_Hans: 逗号或换行分隔的 URL 路径正则，仅保留匹配路径。
+
+  - name: exclude_paths
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Exclude Path Regexes
+      zh_Hans: 排除路径正则
+    human_description:
+      en_US: Comma- or newline-separated regex patterns of URL paths to skip.
+      zh_Hans: 逗号或换行分隔的 URL 路径正则，跳过匹配路径。
+
+  - name: allow_subdomains
+    type: boolean
+    required: false
+    form: form
+    label:
+      en_US: Allow Subdomains
+      zh_Hans: 允许子域名
+    human_description:
+      en_US: Follow links across subdomains of the same registrable domain.
+      zh_Hans: 允许跟进同一主域名下的子域名链接。
+
+  - name: engine
+    type: select
+    required: false
+    default: auto
+    form: form
+    label:
+      en_US: Page Fetch Engine
+      zh_Hans: 页面抓取引擎
+    human_description:
+      en_US: Engine used for each crawled page (auto, http, or browser).
+      zh_Hans: 爬取每个页面时使用的抓取引擎（auto / http / browser）。
+    options:
+      - value: auto
+        label:
+          en_US: Auto (Adaptive)
+          zh_Hans: 自动（自适应）
+      - value: http
+        label:
+          en_US: HTTP Only
+          zh_Hans: 仅 HTTP
+      - value: browser
+        label:
+          en_US: Browser Render
+          zh_Hans: 浏览器渲染
+
+  - name: enable_graph
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Build Site DataGraph
+      zh_Hans: 构建站点 DataGraph 图谱
+    human_description:
+      en_US: Assemble job-level citations, provenance, fact clusters, and cross-page conflicts via /v2/crawl/{id}/graph.
+      zh_Hans: 开启后在爬取完成时自动拉取 /v2/crawl/{id}/graph，汇总站点引文、事实聚类与跨页冲突。
+
+  - name: include_markdown
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Include Page Markdown in Text Output
+      zh_Hans: 文本输出包含页面正文
+    human_description:
+      en_US: Append extracted Markdown previews to the text output (JSON/variables always contain full page data).
+      zh_Hans: 在文本回复中附带各页提取的 Markdown 内容（JSON 与变量输出始终包含完整数据）。
+
+  - name: timeout_seconds
+    type: number
+    required: false
+    default: 90
+    form: form
+    min: 5
+    max: 270
+    label:
+      en_US: Max Wait Timeout (seconds)
+      zh_Hans: 最大等待超时（秒）
+    human_description:
+      en_US: Polling deadline in seconds before stopping (5–270).
+      zh_Hans: 轮询等待爬虫完成的最长秒数（5–270）。
+
+  - name: cancel_on_timeout
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Cancel Remote Job on Timeout
+      zh_Hans: 超时自动取消远端任务
+    human_description:
+      en_US: Call DELETE /v2/crawl/{id} if polling times out so server resources and daily quotas are preserved.
+      zh_Hans: 若轮询超时，自动调用 DELETE /v2/crawl/{id} 停止远端爬取，避免继续消耗资源与配额。
+
+output_schema:
+  type: object
+  properties:
+    job_id:
+      type: string
+      description: PageSift crawl job identifier.
+    status:
+      type: string
+      description: Final crawl job status (completed, cancelled, failed, or timeout).
+    count:
+      type: number
+      description: Total pages retrieved.
+    pages:
+      type: array
+      items:
+        type: object
+      description: Crawled PageSift Document objects.
+    crawl_summary:
+      type: object
+      description: Focused/adaptive crawl summary (stopReason, coverage, termEvidence).
+    graph:
+      type: object
+      description: Job-level DataGraph summary when enable_graph is true.
+    errors:
+      type: object
+      description: Recorded per-page errors and robotsBlocked URLs.
 
 extra:
   python:
     source: tools/crawl.py
-

@@ -1,0 +1,262 @@
+identity:
+  name: sync_source
+  author: yolow92
+  label:
+    en_US: Sync Persistent Loop Data Source
+    zh_Hans: Loop 持久数据源增量同步
+
+description:
+  human:
+    en_US: "Create, trigger, inspect, and manage long-lived PageSift 1.5–1.6.3 Loop data sources (/v2/sources) with conditional 304/ETag refreshes, Poisson/water-filling adaptive scheduling, bounded SyncDeltas, and asOf state views."
+    zh_Hans: "管理 PageSift 1.5–1.6.3 持久化 Loop 数据源（/v2/sources）：注册站点种子、执行增量同步 Tick（304/ETag 与自适应周期调度）、查看资源清点/活跃声明状态视图（支持 asOf 回溯）及增量变更 Delta。"
+  llm: "Manage long-lived PageSift Loop data sources: create, list, get, delete, run incremental sync ticks, inspect source state views (with optional asOf), or inspect sync deltas."
+
+parameters:
+  - name: action
+    type: select
+    required: true
+    default: run
+    form: llm
+    label:
+      en_US: Action
+      zh_Hans: 操作类型
+    human_description:
+      en_US: Loop source operation — create, list, get, delete, run (trigger sync tick), state, or deltas.
+      zh_Hans: Loop 数据源操作：create（注册/更新）、list（列表）、get（详情）、delete（删除）、run（触发一次增量同步）、state（状态视图）或 deltas（增量变更记录）。
+    llm_description: Action to perform — create, list, get, delete, run, state, or deltas.
+    options:
+      - value: create
+        label:
+          en_US: Create / Upsert Source
+          zh_Hans: 注册 / 更新数据源 (create)
+      - value: list
+        label:
+          en_US: List Sources
+          zh_Hans: 列出数据源 (list)
+      - value: get
+        label:
+          en_US: Get Source Spec
+          zh_Hans: 获取数据源配置 (get)
+      - value: delete
+        label:
+          en_US: Delete Source
+          zh_Hans: 删除数据源 (delete)
+      - value: run
+        label:
+          en_US: Run Incremental Sync Tick
+          zh_Hans: 触发增量同步 (run)
+      - value: state
+        label:
+          en_US: Inspect State View
+          zh_Hans: 查看状态视图 (state)
+      - value: deltas
+        label:
+          en_US: Inspect Sync Deltas
+          zh_Hans: 查看增量变更 (deltas)
+
+  - name: source_id
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Source ID
+      zh_Hans: 数据源 ID
+    human_description:
+      en_US: Data source identifier (required for get, delete, run, state, deltas; optional custom ID for create).
+      zh_Hans: 数据源唯一标识（get/delete/run/state/deltas 必填；create 时可选自定义，留空自动生成）。
+    llm_description: Identifier of the Loop data source.
+
+  - name: seeds
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Seed URLs (for create)
+      zh_Hans: 起始种子 URL（create 时必填）
+    human_description:
+      en_US: Newline-, comma-separated, or JSON array of HTTP/HTTPS seed URLs defining source scope.
+      zh_Hans: 换行、逗号分隔或 JSON 数组的种子 HTTP/HTTPS URL（定义同步范围）。
+    llm_description: Seed HTTP/HTTPS URLs when action='create'.
+
+  - name: name
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Display Name (for create)
+      zh_Hans: 数据源名称 (create)
+    human_description:
+      en_US: Optional human-readable label for the data source.
+      zh_Hans: 可选数据源可读名称。
+
+  - name: include_paths
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Include Path Prefixes (for create)
+      zh_Hans: 包含路径前缀 (create)
+    human_description:
+      en_US: Comma- or newline-separated URL path prefixes to include in scope.
+      zh_Hans: 逗号或换行分隔的纳入范围的 URL 路径前缀。
+
+  - name: exclude_paths
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Exclude Path Prefixes (for create)
+      zh_Hans: 排除路径前缀 (create)
+    human_description:
+      en_US: Comma- or newline-separated URL path prefixes to exclude from scope.
+      zh_Hans: 逗号或换行分隔的排除路径前缀。
+
+  - name: max_depth
+    type: number
+    required: false
+    default: 2
+    form: form
+    min: 0
+    max: 100
+    label:
+      en_US: Max Discovery Depth (for create)
+      zh_Hans: 最大发现深度 (create)
+    human_description:
+      en_US: Maximum link depth from seeds (default 2).
+      zh_Hans: 从种子 URL 出发的最大发现层级（默认 2）。
+
+  - name: allow_subdomains
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Allow Subdomains (for create)
+      zh_Hans: 允许子域名 (create)
+    human_description:
+      en_US: Whether subdomains of seed hosts are allowed in scope.
+      zh_Hans: 是否允许同一主域名下的子域名进入同步范围。
+
+  - name: allow_browser
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Allow Adaptive Browser Escalation (for create)
+      zh_Hans: 允许自适应升级浏览器渲染 (create)
+    human_description:
+      en_US: Permit Loop Adapt engine to escalate JS-shell pages to headless browser when needed.
+      zh_Hans: 允许 Loop Adapt 引擎在检测到 JS 空壳页时自适应升级至浏览器渲染。
+
+  - name: max_requests_per_tick
+    type: number
+    required: false
+    form: form
+    min: 1
+    max: 1000
+    label:
+      en_US: Max Requests Per Tick (create / run)
+      zh_Hans: 单次同步最大请求数 (create / run)
+    human_description:
+      en_US: Request budget per tick when creating a source, or one-tick override when action='run'.
+      zh_Hans: 创建数据源时的每轮请求预算，或在 action='run' 时覆盖本次 Tick 请求上限。
+
+  - name: target_items
+    type: number
+    required: false
+    form: form
+    min: 1
+    label:
+      en_US: Target Substantive Items (for create)
+      zh_Hans: 目标有效条目数 (create)
+    human_description:
+      en_US: Optional target item count for goal-satisfied coverage evaluation.
+      zh_Hans: 可选有效条目数量目标，用于覆盖达成评估。
+
+  - name: required_fields
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Required Structured Fields (for create)
+      zh_Hans: 必填结构化字段 (create)
+    human_description:
+      en_US: Comma-separated required structured field names used for capture sufficiency checks.
+      zh_Hans: 逗号分隔的必填结构化字段名，用于采集充分性检测与浏览器升级判定。
+
+  - name: extract_schema
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: CSS Extract Schema JSON (for create)
+      zh_Hans: CSS 抽取 Schema JSON (create)
+    human_description:
+      en_US: Optional PageSift CSS extraction schema JSON applied during sync ticks.
+      zh_Hans: 可选 PageSift 零 LLM CSS 抽取 Schema JSON。
+
+  - name: force_all
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Force Refresh All Resources (for run)
+      zh_Hans: 强制全量刷新 (run)
+    human_description:
+      en_US: When action='run', refresh discovered resources even if adaptive freshness timer has not elapsed.
+      zh_Hans: action='run' 时忽略自适应刷新计时器，强制重新检查已发现资源。
+
+  - name: as_of
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Point-in-Time Cutoff asOf (for state)
+      zh_Hans: 历史时间截断 asOf (state)
+    human_description:
+      en_US: When action='state', reconstruct resource inventory, claims, and conflicts as of RFC-3339 or Unix ms timestamp.
+      zh_Hans: action='state' 时按指定 RFC-3339 或毫秒时间戳回溯当时的资源清单、声明与冲突状态。
+
+  - name: tick_id
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Specific Tick ID (for deltas)
+      zh_Hans: 指定 Tick ID (deltas)
+    human_description:
+      en_US: When action='deltas', fetch one specific tick delta instead of listing recent deltas.
+      zh_Hans: action='deltas' 时可选指定单个 tick_id 查看详细增量记录。
+
+  - name: limit
+    type: number
+    required: false
+    default: 20
+    form: form
+    min: 1
+    max: 500
+    label:
+      en_US: Delta List Limit (for deltas)
+      zh_Hans: 增量列表返回上限 (deltas)
+    human_description:
+      en_US: Maximum number of recent deltas to return when action='deltas'.
+      zh_Hans: action='deltas' 时返回最近增量记录的最大条数。
+
+output_schema:
+  type: object
+  properties:
+    action:
+      type: string
+      description: Executed Loop action.
+    source_id:
+      type: string
+      description: Target Loop data source ID.
+    result:
+      type: object
+      description: Full JSON response from PageSift /v2/sources/*.
+
+extra:
+  python:
+    source: tools/sync_source.py

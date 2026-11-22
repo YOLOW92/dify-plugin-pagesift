@@ -1,9 +1,9 @@
 services:
   # ==============================================================================
-  # PageSift: High-Performance Drop-in Ingestion Engine for Dify
+  # PageSift 1.6.3: High-Performance Web, Document, DataGraph & Context Engine
   # ==============================================================================
   pagesift:
-    image: ghcr.io/yolow92/pagesift:latest
+    image: ghcr.io/yolow92/pagesift:1.6.3
     container_name: pagesift-engine
     restart: unless-stopped
     ports:
@@ -11,14 +11,33 @@ services:
     environment:
       - PAGESIFT_PORT=3002
       - PAGESIFT_HOST=0.0.0.0
+      # Optional: enable Bearer auth for multi-tenant isolation in PageSift 1.6.1+
+      # (For multi-key shared accounts / quotas, mount a pagesift.toml with [[server.keys]].account)
+      # - PAGESIFT_API_KEYS=sk-your-secret-key
     volumes:
+      # Persistent store required for DataGraph (1.4+), Loop Sources (1.5+),
+      # Context KnowledgeUnits (1.6+), selector memory, and resumable crawl jobs.
       - pagesift_data:/data
-    command: ["pagesift", "serve", "--port", "3002", "--host", "0.0.0.0", "--data-dir", "/data"]
+      # Optional: mount custom pagesift.toml for [[server.keys]], [ocr], [itna], [browser]
+      # - ./pagesift.toml:/etc/pagesift/pagesift.toml:ro
+    command:
+      - "pagesift"
+      - "serve"
+      - "--port"
+      - "3002"
+      - "--host"
+      - "0.0.0.0"
+      - "--data-dir"
+      - "/data"
+      # Add "--ocr" below if you want PP-OCRv6 for scanned PDFs and standalone images
 
   # ==============================================================================
   # Example Dify Configuration
-  # In Dify settings, simply configure Firecrawl Base URL:
-  #   FIRECRAWL_API_BASE: http://pagesift:3002
+  # 1. Native Plugin: Install dist/pagesift-0.2.0.difypkg and set:
+  #      base_url: http://pagesift:3002
+  #      api_key:  <optional bearer token>
+  # 2. Firecrawl Drop-in (Dify Knowledge Base):
+  #      FIRECRAWL_API_BASE: http://pagesift:3002
   # ==============================================================================
 
 volumes:

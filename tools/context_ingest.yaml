@@ -1,0 +1,218 @@
+identity:
+  name: context_ingest
+  author: yolow92
+  label:
+    en_US: Manage & Ingest Context Store
+    zh_Hans: Context 知识单元入库与管理
+
+description:
+  human:
+    en_US: Ingest multi-format documents into persistent PageSift 1.6.3 KnowledgeUnits (/v2/context/ingest), reconcile Loop sources (/sync), inspect units (/units), poll/ack consumer ContextDeltas (/deltas/poll, /deltas/ack), and inspect or configure drift-guarded online calibration (/learn).
+    zh_Hans: 管理 PageSift 1.6.3 持久化 Context 存储：将文档写入跨版本 KnowledgeUnit（ingest）、从 Loop 数据源对账同步（sync）、查看知识单元（units）、拉取/确认防 ABA 增量 Delta（deltas_poll / deltas_ack）以及查看/配置在线校准状态（learn_status / learn_update）。
+  llm: Ingest documents into persistent PageSift Context storage, sync from a Loop source, inspect stored KnowledgeUnits, manage delta checkpoints, or inspect calibration state.
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    default: ingest
+    form: llm
+    label:
+      en_US: Operation
+      zh_Hans: 操作类型
+    human_description:
+      en_US: Choose Context management operation (ingest, sync, units, deltas_poll, deltas_ack, learn_status, learn_update).
+      zh_Hans: 选择 Context 管理操作（入库、从 Loop 同步、查询单元、拉取增量、确认位点、查看或更新校准状态）。
+    llm_description: Context management operation — ingest, sync, units, deltas_poll, deltas_ack, learn_status, or learn_update.
+    options:
+      - value: ingest
+        label:
+          en_US: Ingest Documents
+          zh_Hans: 文档入库 (ingest)
+      - value: sync
+        label:
+          en_US: Sync from Loop Source
+          zh_Hans: 从 Loop 数据源同步 (sync)
+      - value: units
+        label:
+          en_US: List KnowledgeUnits
+          zh_Hans: 查询知识单元 (units)
+      - value: deltas_poll
+        label:
+          en_US: Poll Consumer Deltas
+          zh_Hans: 拉取增量变更 (deltas_poll)
+      - value: deltas_ack
+        label:
+          en_US: Acknowledge Consumer Checkpoint
+          zh_Hans: 确认消费位点 (deltas_ack)
+      - value: learn_status
+        label:
+          en_US: Read Calibration Status (Read-Only)
+          zh_Hans: 查看在线校准状态 (learn_status)
+      - value: learn_update
+        label:
+          en_US: Update Calibration / Feedback
+          zh_Hans: 更新在线校准 / 提交反馈 (learn_update)
+
+  - name: source_id
+    type: string
+    required: false
+    default: default
+    form: llm
+    label:
+      en_US: Source ID
+      zh_Hans: 数据源 ID (sourceId)
+    human_description:
+      en_US: Logical Context / Loop source identifier (required for sync, units, deltas_poll, deltas_ack; defaults to 'default' for ingest).
+      zh_Hans: Context 或 Loop 逻辑数据源标识（sync/units/deltas 必填，ingest 默认为 default）。
+    llm_description: Target Context or Loop source identifier.
+
+  - name: documents
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Documents JSON (for ingest)
+      zh_Hans: 待入库文档 JSON (ingest)
+    human_description:
+      en_US: JSON array of {url, markdown, title, validFrom, validUntil, subjectKey, ...} or direct JSON output from read_url/parse_document/crawl/batch_scrape.
+      zh_Hans: JSON 数组（含 url/markdown 等字段）或直接传入 read_url / parse_document / crawl / batch_scrape 的 JSON 输出。
+    llm_description: JSON document array or single scraped/parsed document object to ingest.
+
+  - name: match_mode
+    type: select
+    required: false
+    default: boundedUot
+    form: form
+    label:
+      en_US: Cross-Version Unit Match Mode
+      zh_Hans: 跨版本单元对齐策略
+    human_description:
+      en_US: Algorithm reconciling unitId identity across document revisions.
+      zh_Hans: 跨版本文档修订时维护稳定 unitId 的对齐算法。
+    options:
+      - value: boundedUot
+        label:
+          en_US: Bounded UOT (Default)
+          zh_Hans: 有界非平衡最优传输 (boundedUot)
+      - value: greedyDice
+        label:
+          en_US: Greedy Dice
+          zh_Hans: 贪心 Dice 匹配 (greedyDice)
+      - value: exactAnchorOnly
+        label:
+          en_US: Exact Anchor Only
+          zh_Hans: 仅精确锚点 (exactAnchorOnly)
+
+  - name: persist
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Persist to Store
+      zh_Hans: 持久化写入 Store
+    human_description:
+      en_US: Persist ingested KnowledgeUnits atomically into PageSift Store (ns::CONTEXT).
+      zh_Hans: 原子事务持久化写入 PageSift Store（ns::CONTEXT，免疫缓存 LRU 淘汰）。
+
+  - name: url_filter
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Resource URL Filter (for units)
+      zh_Hans: 资源 URL 过滤 (units)
+    human_description:
+      en_US: Optional URL filter when operation='units'.
+      zh_Hans: operation='units' 时按特定文档 URL 过滤知识单元。
+
+  - name: as_of
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Historical Cutoff asOf (for units)
+      zh_Hans: 历史时间截断 asOf (units)
+    human_description:
+      en_US: Optional RFC-3339 or Unix ms cutoff when inspecting historical units.
+      zh_Hans: 可选 RFC-3339 或毫秒时间戳，查看历史时刻的知识单元快照。
+
+  - name: limit
+    type: number
+    required: false
+    default: 100
+    form: form
+    min: 1
+    max: 10000
+    label:
+      en_US: Result Limit
+      zh_Hans: 返回条数上限
+    human_description:
+      en_US: Maximum units or deltas to return (1–10000).
+      zh_Hans: 返回单元或增量的最大条数（1–10000）。
+
+  - name: consumer_id
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Consumer ID (deltas_poll / deltas_ack)
+      zh_Hans: 外部消费者 ID (consumerId)
+    human_description:
+      en_US: External index consumer identifier for at-least-once delta delivery.
+      zh_Hans: 外部索引消费者标识，用于至少一次增量消费位点追踪。
+
+  - name: instance_id
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Source Instance ID (deltas_ack)
+      zh_Hans: 数据源实例 ID (防 ABA 校验)
+    human_description:
+      en_US: Anti-ABA source instanceId returned by deltas_poll, required for deltas_ack.
+      zh_Hans: 由 deltas_poll 返回的防 ABA source instanceId（deltas_ack 必填）。
+
+  - name: acked_delta_seq
+    type: number
+    required: false
+    form: form
+    min: 0
+    label:
+      en_US: Acked Delta Seq (deltas_ack)
+      zh_Hans: 确认序号 (ackedDeltaSeq)
+    human_description:
+      en_US: Highest processed deltaSeq to commit idempotently via deltas_ack.
+      zh_Hans: 已完成处理的最高 deltaSeq 序号（幂等提交，不会回退）。
+
+  - name: learn_config
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: Learn Update Payload JSON (learn_update)
+      zh_Hans: 校准配置或反馈 JSON (learn_update)
+    human_description:
+      en_US: 'JSON object for POST /v2/context/learn (e.g. {"enabled": true, "frozen": false, "driftGuard": "cusumPageHinkley", "feedback": {"rawScore": 0.85, "groundedCorrect": true, "isHardGroundTruth": true}}).'
+      zh_Hans: "用于 POST /v2/context/learn 的 JSON 对象（支持 enabled、frozen、driftGuard 及 feedback）。"
+
+output_schema:
+  type: object
+  properties:
+    operation:
+      type: string
+      description: Executed Context management operation.
+    source_id:
+      type: string
+      description: Target source identifier.
+    live_unit_count:
+      type: number
+      description: Current live KnowledgeUnit count (when available).
+    result:
+      type: object
+      description: Full structured JSON response from PageSift /v2/context/*.
+
+extra:
+  python:
+    source: tools/context_ingest.py

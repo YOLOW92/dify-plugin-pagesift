@@ -1,0 +1,225 @@
+identity:
+  name: batch_scrape
+  author: yolow92
+  label:
+    en_US: Batch Scrape URLs
+    zh_Hans: 批量并发抓取网页
+
+description:
+  human:
+    en_US: Scrape multiple known URLs concurrently in a single PageSift 1.6.3 job (/v2/batch/scrape) with shared options, automatic pagination, query filtering, chunking, CSS extraction, and DataGraph support.
+    zh_Hans: 基于 PageSift 1.6.3（/v2/batch/scrape）批量并发抓取多个已知 URL，共享抓取配置、自动分页，支持 BM25 查询过滤、RAG 切片、CSS 结构化抽取与 DataGraph 图谱。
+  llm: Scrape a list of multiple known URLs concurrently in one job and return clean Markdown for each page.
+
+parameters:
+  - name: urls
+    type: string
+    required: true
+    form: llm
+    label:
+      en_US: Target URLs
+      zh_Hans: 目标 URL 列表
+    human_description:
+      en_US: JSON array, newline-separated, or comma-separated list of HTTP/HTTPS URLs (1–500).
+      zh_Hans: JSON 数组、按行分隔或逗号分隔的 HTTP/HTTPS URL 列表（1–500 个）。
+    llm_description: Newline-separated, comma-separated, or JSON array of HTTP/HTTPS URLs to scrape.
+
+  - name: only_main_content
+    type: boolean
+    required: false
+    default: true
+    form: llm
+    label:
+      en_US: Only Main Content
+      zh_Hans: 仅提取正文
+    human_description:
+      en_US: Strip navigation, sidebars, ads, and footers on every page.
+      zh_Hans: 对所有页面自动滤除导航、侧边栏、广告与页脚。
+    llm_description: Extract only main article content on each URL (defaults to true).
+
+  - name: query_filter
+    type: string
+    required: false
+    form: llm
+    label:
+      en_US: Query Filter (BM25)
+      zh_Hans: 查询相关性过滤 (BM25)
+    human_description:
+      en_US: Optional query to retain only relevant blocks across all scraped pages.
+      zh_Hans: 可选查询词：在所有批量抓取页面中仅保留高相关正文块。
+    llm_description: Optional query to filter every scraped page down to relevant blocks.
+
+  - name: engine
+    type: select
+    required: false
+    default: auto
+    form: form
+    label:
+      en_US: Fetch Engine
+      zh_Hans: 抓取引擎模式
+    human_description:
+      en_US: Fetch engine applied to every URL (auto, http, or browser).
+      zh_Hans: 批量任务使用的抓取引擎（auto / http / browser）。
+    options:
+      - value: auto
+        label:
+          en_US: Auto (Adaptive)
+          zh_Hans: 自动（自适应）
+      - value: http
+        label:
+          en_US: HTTP Only
+          zh_Hans: 仅 HTTP
+      - value: browser
+        label:
+          en_US: Browser Render
+          zh_Hans: 浏览器渲染
+
+  - name: max_concurrency
+    type: number
+    required: false
+    form: form
+    min: 1
+    max: 64
+    label:
+      en_US: Max Concurrency
+      zh_Hans: 最大并发数
+    human_description:
+      en_US: Optional upper bound on concurrent fetches (bounded by PageSift server admission control).
+      zh_Hans: 可选并发上限（受 PageSift 服务端准入控制约束）。
+
+  - name: extract_schema
+    type: string
+    required: false
+    form: form
+    label:
+      en_US: CSS Extract Schema (JSON)
+      zh_Hans: 零 LLM 结构化抽取 Schema (JSON)
+    human_description:
+      en_US: Optional CSS extraction schema applied across all URLs with selector memory.
+      zh_Hans: 对所有 URL 应用的零 LLM CSS 抽取 Schema JSON。
+
+  - name: chunking_type
+    type: select
+    required: false
+    default: none
+    form: form
+    label:
+      en_US: RAG Chunking Strategy
+      zh_Hans: RAG 文本切片策略
+    human_description:
+      en_US: Optionally split each scraped page into structured RAG chunks.
+      zh_Hans: 可选对每页结果执行结构化 RAG 切片。
+    options:
+      - value: none
+        label:
+          en_US: Disabled
+          zh_Hans: 不切片
+      - value: recursive
+        label:
+          en_US: Recursive
+          zh_Hans: 递归结构切片 (recursive)
+      - value: headings
+        label:
+          en_US: By Headings
+          zh_Hans: 按标题层级 (headings)
+      - value: paragraphs
+        label:
+          en_US: By Paragraphs
+          zh_Hans: 按段落 (paragraphs)
+      - value: fixed_tokens
+        label:
+          en_US: Fixed Tokens
+          zh_Hans: 固定 Token (fixed_tokens)
+
+  - name: chunk_size
+    type: number
+    required: false
+    form: form
+    min: 32
+    max: 32768
+    label:
+      en_US: Chunk Size
+      zh_Hans: 切片大小
+    human_description:
+      en_US: Target chunk size when Chunking Strategy is enabled.
+      zh_Hans: 启用切片策略时的目标分块大小。
+
+  - name: enable_graph
+    type: boolean
+    required: false
+    default: false
+    form: form
+    label:
+      en_US: Enable DataGraph Extraction
+      zh_Hans: 启用 DataGraph 抽取
+    human_description:
+      en_US: Extract per-page DataGraph slices (citations, evidence, claims).
+      zh_Hans: 为每个页面抽取 DataGraph 切片。
+
+  - name: include_markdown
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Include Markdown in Text Output
+      zh_Hans: 文本输出包含页面正文
+    human_description:
+      en_US: Include concatenated page Markdown in the text output (full records are always in JSON/variables).
+      zh_Hans: 在文本回复中拼接各页 Markdown（完整结构始终在 JSON/变量中返回）。
+
+  - name: timeout_seconds
+    type: number
+    required: false
+    default: 90
+    form: form
+    min: 5
+    max: 270
+    label:
+      en_US: Max Wait Timeout (seconds)
+      zh_Hans: 最大等待超时（秒）
+    human_description:
+      en_US: Polling deadline in seconds before stopping (5–270).
+      zh_Hans: 轮询等待批量任务完成的最长秒数（5–270）。
+
+  - name: cancel_on_timeout
+    type: boolean
+    required: false
+    default: true
+    form: form
+    label:
+      en_US: Cancel Remote Job on Timeout
+      zh_Hans: 超时自动取消远端任务
+    human_description:
+      en_US: Call DELETE /v2/batch/scrape/{id} if polling times out.
+      zh_Hans: 超时时自动取消远端批量任务，避免浪费配额。
+
+output_schema:
+  type: object
+  properties:
+    job_id:
+      type: string
+      description: PageSift batch scrape job identifier.
+    status:
+      type: string
+      description: Final job status (completed, cancelled, failed, or timeout).
+    count:
+      type: number
+      description: Number of pages returned.
+    pages:
+      type: array
+      items:
+        type: object
+      description: Scraped PageSift Document objects.
+    invalid_urls:
+      type: array
+      items:
+        type: string
+      description: Any URLs rejected as invalid before job start.
+    errors:
+      type: object
+      description: Recorded per-page errors and robotsBlocked URLs.
+
+extra:
+  python:
+    source: tools/batch_scrape.py

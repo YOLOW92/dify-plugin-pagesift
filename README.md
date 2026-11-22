@@ -1,12 +1,13 @@
-# PageSift Dify Plugin (Official 1.0)
+# PageSift Dify Plugin (v0.2.0 — PageSift 1.6.3 Ready)
 
-[![Dify Plugin](https://img.shields.io/badge/Dify-Plugin%201.0-blue.svg)](https://dify.ai)
+[![Dify Plugin](https://img.shields.io/badge/Dify-Plugin%200.2.0-blue.svg)](https://dify.ai)
+[![PageSift](https://img.shields.io/badge/PageSift-1.6.3-orange.svg)](https://github.com/YOLOW92/pagesift)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![WCXB 511 Word-F1](https://img.shields.io/badge/WCXB%20511%20Word--F1-0.8750-brightgreen.svg)](bench/BENCHMARK_REPORT.md)
 [![1,000,000 Soak Test](https://img.shields.io/badge/Million%20Soak%20Test-100%25%20PASS-blue.svg)](bench/STRESS_TEST_REPORT.md)
 [![Sub-Millisecond Engine](https://img.shields.io/badge/PageSift-p50%203.3ms-purple.svg)](bench/BENCHMARK_REPORT.md)
 
-The official **PageSift** plugin for Dify, powered by a pure-Rust ingestion engine. Designed specifically for LLM Retrieval-Augmented Generation (RAG), real-time web scraping, multi-format enterprise document parsing (PDF, Word, Excel, PPT, CSV), and deep website crawling. PageSift delivers **sub-millisecond processing latency**, **high-fidelity Markdown generation**, **zero external dependency deployment**, and **proven million-request soak stability without memory leaks**.
+The official **PageSift** plugin for Dify (`v0.2.0`), fully adapted to **PageSift 1.6.3**. Powered by a pure-Rust single-binary ingestion engine, it delivers **9 native Dify tools** spanning sub-millisecond web scraping, full-format document & 373-language code parsing (with optional PP-OCRv6), focused adaptive crawling, site mapping, batch scraping, **DataGraph** (1.4+ provenance, version history, conflicts, claims), **Loop** (1.5+ persistent incremental sync), and **Context** (1.6+ cross-version `KnowledgeUnit`s and token-budgeted `ContextPack` compilation).
 
 *Source Repository: [https://github.com/YOLOW92/dify-plugin-pagesift](https://github.com/YOLOW92/dify-plugin-pagesift)*  
 *Localized Documentation: [README.zh_Hans.md](README.zh_Hans.md) (Simplified Chinese)*
@@ -33,10 +34,20 @@ The official **PageSift** plugin for Dify, powered by a pure-Rust ingestion engi
 
 ## Core Features and Architecture
 
-### 1. Architectural Contrast: Pure Rust Single Binary vs. 5-Container Cluster
-Traditional scraping and markdown extraction engines (such as Firecrawl) rely heavily on headless browser clusters (Playwright / Chromium) and microservice middleware (Node.js, RabbitMQ, PostgreSQL, Redis). This architecture causes slow cold starts, substantial memory footprints (>3 GB baseline), and queuing under concurrent load. 
+### 1. Built for Dify's Three Core Pillars (PageSift 1.6.3)
 
-PageSift eliminates browser automation dependencies through an in-house zero-copy HTML parser and rendering layout tree reconstructor implemented entirely in Rust. All web crawling, layout tree reconstruction, content denoising, and multi-format document conversion are bundled into a **single native static binary**.
+`dify-plugin-pagesift` `v0.2.0` aligns directly with Dify's core enterprise platform goals across integration, RAG quality, and governance:
+
+| Dify Core Pillar | How PageSift 1.6.3 + Plugin v0.2.0 Delivers |
+| :--- | :--- |
+| **Multi-Model & Tool Integration**<br>*(Plugins, APIs, Vector DBs & MCP)* | **Full-stack integration**: ① **9 native Dify Plugin tools** (`difypkg`) with typed `output_schema` variables and native Dify file upload parsing (`/v2/parse`, unavailable over MCP); ② **Zero-code Firecrawl v1/v2 & Jina Reader drop-in API** (`FIRECRAWL_API_BASE`) for Dify Knowledge Base crawling; ③ **Built-in MCP Server** (`pagesift mcp http --port 3003`) for direct Dify MCP extension; ④ Model-agnostic & vector-DB-ready structured chunks and consumer delta checkpoints (`deltas_poll` / `deltas_ack`). |
+| **RAG Knowledge Base Engine**<br>*(Chunking, Cleaning & Retrieval)* | **Beyond naive chunking**: Pure-Rust ingestion of live web pages, PDFs (text + optional PP-OCRv6), Office/Legacy Office/OpenDocument, Email, Archives, SQLite/CSV, Images, and **373 source-code languages** (32+ AST-split by function/class). Built-in Rust RAG chunking (`recursive`, `headings`, `fixed_tokens`), BM25 `query_filter`, **Loop (`sync_source`)** adaptive 304/ETag incremental sync, **DataGraph (`query_graph`)** citations/conflicts/claims, and **Context (`context_pack`)** cross-version `KnowledgeUnit`s with `asOf`/`effectiveAt` temporal retrieval, `MustKeep` table-header/qualifier/conflict-pair preservation, and token-budgeted `ContextPack` compilation. |
+| **Observability & Governance**<br>*(Tracing, Cost/Perf, Feedback & ACL)* | **Enterprise-grade controls**: ① **Multi-tenant ACL** via PageSift `1.6.1–1.6.3` `[[server.keys]].account` tenant isolation (plus `X-Session-Id` in anonymous mode), zero-quota auth checks (`/v2/crawl/active`), and 4-layer SSRF protection; ② **Cost & performance governance** via per-key `requests_per_minute` / `max_concurrent_jobs` / atomic RAII `pages_per_day` quotas, Prometheus `/metrics`, `--audit-log` structured tracing, and hard `budgetTokens` caps in `ContextPack` to curb LLM token spend; ③ **Grounded feedback & auditability** via `provenanceManifest`, cross-source conflict detection, and drift-guarded online calibration (`context_ingest` `learn_status` / `learn_update` accepting verified human annotations). |
+
+### 2. Architectural Contrast: Pure Rust Single Binary vs. 5-Container Cluster
+Traditional scraping and markdown extraction engines (such as Firecrawl) rely heavily on headless browser clusters (Playwright / Chromium) and microservice middleware (Node.js, RabbitMQ, PostgreSQL, Redis). This architecture causes slow cold starts, substantial memory footprints (>3 GB baseline), and queuing under concurrent load.
+
+PageSift eliminates heavy container stacks through an in-house zero-copy HTML parser, native document/OCR parsers, adaptive loop sync, DataGraph, and Context compilation bundled into a **single native static binary**.
 
 ```mermaid
 flowchart TD
@@ -49,21 +60,21 @@ flowchart TD
         FC_INGRESS --> FC_DB
     end
 
-    subgraph PageSiftArchitecture ["PageSift 1.3.0 (Single Native Rust Binary, 75.1 MB RAM)"]
-        PS_CORE["PageSift Core Engine\n(Pure-Rust Event-Loop + Zero-Copy Parser + yolowpdf)"]
+    subgraph PageSiftArchitecture ["PageSift 1.6.3 (Single Native Rust Binary, ~75 MB Baseline RAM)"]
+        PS_CORE["PageSift Core Engine\n(HTTP/Browser Capture + yolowpdf/yolowdoc/OCR\n+ Loop Sync + DataGraph + ContextPack + Multi-Tenant Quotas)"]
     end
 
-    DIFY["Dify 1.0 Plugin Framework"] -->|Sub-millisecond API| PS_CORE
+    DIFY["Dify Platform\n(Plugin v0.2.0 / Firecrawl API / MCP)"] -->|Sub-millisecond API| PS_CORE
     DIFY -.->|Heavy REST Overhead| FC_INGRESS
 ```
 
-### 2. Key Advantages
+### 3. Key Advantages
 - **Sub-Millisecond Processing**: Median latency across the official WCXB 511-page test split is **3.30 ms** (compared to 1,578.70 ms for Firecrawl, **478x faster**).
 - **Superior Markdown Quality**: Achieves **Word-F1 score of 0.8750** (95% CI `[0.8578, 0.8904]`) on human-annotated ground truth, significantly outperforming Firecrawl (0.7998).
-- **Native Document Support**: Parses PDF (3.06 ms), DOCX (8.69 ms), XLSX (0.49 ms), PPTX (0.32 ms), and CSV (0.40 ms) via native Rust engines without LibreOffice or headless browsers.
-- **Million-Request Soak Proven**: Successfully executed **1,000,000 requests** continuously with **100.00% success rate (0 errors)** in 570 seconds. Final RSS memory was only 75.16 MB (+0.0243 MB per 10k requests drift slope).
-- **Resource Efficiency**: Operates within a `MemoryMax=256MB` cgroup with peak memory of 188.5 MB, while Firecrawl requires over 3,000 MB RAM.
-- **Enterprise SSRF Protection**: Strict hop-by-hop redirect verification, DNS rebinding prevention, link-local / metadata endpoint blocking, and 50 MB streaming truncation.
+- **Universal Native Parsing**: Parses PDF (3.06 ms), DOCX (8.69 ms), XLSX (0.49 ms), PPTX (0.32 ms), CSV (0.40 ms), plus legacy Office, archives, email, SQLite, OCR images, and 373 code languages without LibreOffice.
+- **Evidence-Grounded Context & Incremental Sync**: `ContextPack` preserves table headers, negations/qualifiers, and opposing conflict pairs inside strict token budgets, backed by Loop incremental sync and DataGraph provenance.
+- **Million-Request Soak Proven**: Successfully executed **1,000,000 requests** continuously with **100.00% success rate (0 errors)** in 570 seconds (final RSS 75.16 MB, +0.0243 MB per 10k requests drift slope).
+- **Enterprise Governance & Security**: `1.6.1–1.6.3` multi-tenant key/account isolation, atomic daily page quotas, Prometheus metrics, structured audit logs, hop-by-hop SSRF blocking, and 50 MB stream truncation.
 
 ---
 
@@ -167,53 +178,38 @@ PageSift was tested with 32 concurrent keep-alive connections executing continuo
 
 ---
 
-## Dify Tool Reference
+## Dify Tool Reference (9 Tools — PageSift 1.6.3)
 
-This plugin provides three native tools conforming to the `dify-plugin>=0.11.0` standard with full LLM Function Calling support:
+All 9 tools conform to `dify-plugin>=0.11.0`, emit typed Workflow variables via `output_schema`, and map all PageSift 1.6.3 structured error codes (`QUOTA_EXCEEDED`, `ROBOTS_DISALLOWED`, `ACCESS_BARRIER`, `UNSUPPORTED_OPTION`, `SSRF_BLOCKED`, etc.) and diagnostic warnings.
 
-### 1. `read_url` (Webpage to High-Fidelity Markdown)
-- **Identifier**: `yolow92/pagesift/read_url`
-- **Parameters**:
-  | Name | Type | Required | Default | Description |
-  | :--- | :--- | :---: | :---: | :--- |
-  | `url` | `string` | **Yes** | - | Complete HTTP or HTTPS target webpage URL |
-  | `only_main_content` | `boolean` | No | `true` | When true, strips headers, footers, sidebars, and ads |
-  | `include_metadata` | `boolean` | No | `true` | Prepends title, author, date, and OpenGraph metadata |
-- **Outputs**: Markdown text message (`text`) and structured JSON message (`json`).
-
-### 2. `parse_document` (Multi-Format Document Parsing)
-- **Identifier**: `yolow92/pagesift/parse_document`
-- **Parameters**:
-  | Name | Type | Required | Default | Description |
-  | :--- | :--- | :---: | :---: | :--- |
-  | `file` | `file` | No | - | Document file uploaded via Dify workflow (PDF, Word, Excel, PPT, CSV) |
-  | `file_url` | `string` | No | - | Public URL of document (protected by SSRF and 50MB truncation) |
-  | `enable_ocr` | `boolean` | No | `false` | Enable pure-Rust OCR for scanned image-only PDFs |
-- *Note*: Provide either `file` or `file_url`.
-
-### 3. `crawl` (Deep Website Crawling)
-- **Identifier**: `yolow92/pagesift/crawl`
-- **Parameters**:
-  | Name | Type | Required | Default | Description |
-  | :--- | :--- | :---: | :---: | :--- |
-  | `url` | `string` | **Yes** | - | Root seed URL for recursive graph crawl |
-  | `limit` | `number` | No | `5` | Maximum number of pages to traverse |
-- **Outputs**: List of crawled page records with Markdown text and topology links.
+| # | Tool Name | PageSift 1.6.3 Endpoint(s) | Core Capabilities |
+| :-: | :--- | :--- | :--- |
+| 1 | `read_url` | `POST /v2/scrape` | Sub-ms Markdown, `query_filter` (BM25), Rust RAG `chunking`, zero-LLM CSS `extract_schema` (with selector memory/relocation), `image_assets`, `engine` (`auto`/`http`/`browser`), `max_age`, `enable_graph` |
+| 2 | `parse_document` | `POST /v2/parse` | Full-format parsing: PDF (`pdf_mode`: `auto`/`fast`/`ocr`, `max_pages`, `per_page`), Office/Legacy Office/OpenDocument, RTF/HWP, EPUB/MOBI, Email, Archives, SQLite/CSV, Images (OCR), 373 code languages, `query_filter`, `chunking`, `source_url`, `enable_graph` |
+| 3 | `crawl` | `POST/GET/DELETE /v2/crawl*` | Focused `query` crawl, `adaptive` early stop, linked PDF/Office `attachments`, scope/path regexes, automatic `?skip=` pagination, cancel-on-timeout, per-page errors, and site-wide DataGraph (`/v2/crawl/{id}/graph`) |
+| 4 | `map_site` | `POST /v2/map` | Ultra-fast site URL discovery from sitemaps, `robots.txt`, and homepage links with `search` ranking |
+| 5 | `batch_scrape` | `POST/GET/DELETE /v2/batch/scrape*` | Concurrent scraping of up to 500 known URLs in one job with shared `query_filter`, `chunking`, `extract_schema`, pagination, and cancel-on-timeout |
+| 6 | `context_pack` | `POST /v2/context/{pack,search,action}` | **PageSift 1.6 flagship**: stateless or persistent temporal (`asOf`/`effectiveAt`) retrieval, `MustKeep` table headers/qualifiers/conflict pairs, token-budgeted `ContextPack` (`submodularClosure`/`boundedDpp`/`mmrGreedy`, `edgeSalience`), `provenanceManifest`, and optional VOI-bounded `Action` (`verify`/`research`/`watch`/`changes`) |
+| 7 | `context_ingest` | `POST/GET /v2/context/{ingest,sync,units,deltas/*,learn}` | Atomic ingestion of documents (auto-adapting `read_url`/`parse_document`/`crawl` JSON outputs) into persistent `KnowledgeUnit`s (`ns::CONTEXT`), Loop source reconciliation, delta polling/anti-ABA `ack`, and read-only/mutating drift-guarded `learn` |
+| 8 | `sync_source` | `/v2/sources*` | **PageSift 1.5 Loop**: register long-lived data sources, run adaptive 304/ETag incremental sync ticks, inspect `asOf` resource/claim/fact-cluster state views, and inspect bounded `SyncDelta`s |
+| 9 | `query_graph` | `/v2/crawl/{id}/graph`, `/v2/graph/{history,conflicts,claims}` | **PageSift 1.4+ DataGraph**: query crawl graph summaries, URL cross-time version history, cross-source conflicts, and `asOf` claim lifecycles |
 
 ---
 
-## Enterprise Security and SSRF Protection
+## Enterprise Security, SSRF & Multi-Tenant Isolation
 
-To ensure safe deployment in multi-tenant cloud environments and enterprise intranets, PageSift enforces multi-layer network protection:
+- **Zero-Quota Auth Verification**: Provider credential validation checks `GET /healthz` followed by `GET /v2/crawl/active` (which enforces PageSift `auth` middleware without consuming `requests_per_minute` or `pages_per_day`).
+- **PageSift 1.6.1–1.6.3 Multi-Tenancy**: Configure per-workspace `api_key` credentials; in PageSift 1.6.1+, `[[server.keys]].name` is display-only and keys only share tenants/quotas/Context/DataGraph when explicitly sharing `[[server.keys]].account`. In unauthenticated mode, optionally set `session_id` (`X-Session-Id`) to scope anonymous DataGraph/Context state.
+- **4-Layer Client SSRF Guard**: Blocks non-HTTP(S) schemes, literal private/loopback/CGNAT/metadata/IPv4-mapped IPv6 (`::ffff:127.0.0.1`) addresses before DNS, validates every DNS-resolved IP, and enforces hop-by-hop redirect validation plus 50 MB stream truncation on document downloads.
 
 ```mermaid
 flowchart TD
     REQ["Inbound Target URL"] --> PROTO_CHECK{"Protocol Validation"}
     PROTO_CHECK -->|Illegal (file://, gopher://)| BLOCK_PROTO["403 PageSiftSSRFError (Blocked)"]
-    PROTO_CHECK -->|HTTP / HTTPS| DNS_RESOLVE["DNS Dual-Resolution & IP Check"]
+    PROTO_CHECK -->|HTTP / HTTPS| DNS_RESOLVE["Literal IP + DNS Dual-Resolution Check"]
     
     DNS_RESOLVE --> IP_CHECK{"Target IP Classification"}
-    IP_CHECK -->|RFC 1918 Private (10/8, 172.16/12, 192.168/16)| BLOCK_IP["403 Blocked Private Subnet"]
+    IP_CHECK -->|RFC 1918 / CGNAT / IPv4-mapped IPv6| BLOCK_IP["403 Blocked Private Subnet"]
     IP_CHECK -->|Loopback (127/8, ::1)| BLOCK_LOOP["403 Blocked Localhost"]
     IP_CHECK -->|Cloud Metadata (169.254.169.254, RFC 3927)| BLOCK_META["403 Blocked Cloud Metadata"]
     IP_CHECK -->|Valid Public IP| STREAM_CONN["Establish HTTP Connection (allow_redirects=False)"]
@@ -224,7 +220,7 @@ flowchart TD
     HOP_CHECK -->|Valid Public Redirect Destination| STREAM_CONN
     
     REDIRECT -->|No| CL_CHECK{"Content-Length > 50MB?"}
-    CL_CHECK -->|Yes| BLOCK_LEN["422 Rejected Oversized Payload"]
+    CL_CHECK -->|Yes| BLOCK_LEN["413 Rejected Oversized Payload"]
     CL_CHECK -->|No| STREAM_READ["64KB Chunked Streaming Read"]
     
     STREAM_READ --> OVERFLOW{"Cumulative Bytes > 50MB?"}
@@ -238,15 +234,13 @@ flowchart TD
 
 Pre-built Dify 1.0 workflow templates are located in `bench/dify_workflows/`:
 
-1. **`W01_pagesift_web_qa.yml` (Instant Web QA)**:
-   - Flow: `User Input` $\to$ `read_url` $\to$ `LLM Synthesis` $\to$ `Answer`.
-   - Ideal for news summarization and real-time knowledge ingestion.
-2. **`W02_metadata_routing.yml` (Metadata-Based Content Routing)**:
-   - Flow: `read_url` extracts OpenGraph tags $\to$ Routes based on publication date and author.
-3. **`W03_pagesift_document_qa.yml` (Enterprise Document QA)**:
-   - Flow: User uploads PDF / DOCX / XLSX $\to$ `parse_document` $\to$ LLM context synthesis.
-4. **`W10_error_fallback_recovery.yml` (Graceful Fallback)**:
-   - Flow: Traps anti-scraping or network errors and degrades smoothly to secondary search endpoints.
+1. **`W01_pagesift_web_qa.yml`**: Instant webpage scraping (`read_url`) $\to$ LLM QA.
+2. **`W02_metadata_routing.yml`**: Metadata-based conditional routing via `read_url`.
+3. **`W03_pagesift_document_qa.yml`**: Multi-format document & code QA via `parse_document`.
+4. **`W04_pagesift_context_pack_rag.yml`**: PageSift 1.6.3 `context_pack` token-budgeted evidence QA with `provenanceManifest` and conflict preservation.
+5. **`W05_pagesift_loop_sync_pipeline.yml`**: PageSift 1.5–1.6.3 `sync_source` incremental tick $\to$ `context_ingest` (`sync`) index reconciliation.
+6. **`W06_pagesift_graph_conflict_audit.yml`**: Focused adaptive `crawl` (`enable_graph=true`) $\to$ `query_graph` cross-source conflict audit.
+7. **`W10_error_fallback_recovery.yml`**: Graceful fallback on anti-bot or network errors.
 
 ---
 
@@ -254,26 +248,31 @@ Pre-built Dify 1.0 workflow templates are located in `bench/dify_workflows/`:
 
 ### 1. Install via `.difypkg` File
 The pre-compiled plugin package is located under `dist/`:
-- **Package Path**: `dist/pagesift-0.1.0.difypkg` (Package size: ~36.8 KB)
-- **SHA-256 Checksum File**: `dist/pagesift-0.1.0.difypkg.sha256` (also provided on GitHub Release page)
+- **Package Path**: `dist/pagesift-0.2.0.difypkg`
+- **SHA-256 Checksum File**: `dist/pagesift-0.2.0.difypkg.sha256`
 
 #### Setup Steps:
 1. Log in to your Dify workspace and open **Plugins**;
 2. Click **Install from file** in the top right corner;
-3. Upload `dist/pagesift-0.1.0.difypkg` to install;
-4. In Plugin Credentials, configure the connection to your PageSift server:
-   - `base_url`: Endpoint URL of your PageSift service (e.g., `http://localhost:3002`, `http://host.docker.internal:3002`, or your private subnet IP);
-   - `api_key`: Optional Bearer Token configured on your PageSift instance (leave blank if authentication is disabled).
+3. Upload `dist/pagesift-0.2.0.difypkg` to install;
+4. In Plugin Credentials, configure the connection to your PageSift 1.6.3 server:
+   - `base_url`: Endpoint URL of your PageSift service (e.g., `http://localhost:3002`, `http://pagesift:3002`, or `http://host.docker.internal:3002`);
+   - `api_key`: Bearer Token when authentication is enabled (isolates tenant quotas, DataGraph, Loop sources, and Context);
+   - `session_id`: Optional `X-Session-Id` for best-effort isolation in unauthenticated mode;
+   - `default_timeout`: Default HTTP timeout in seconds (1–300, default `30`).
 
-### 2. Deploy PageSift Backend (Single Rust Binary)
-Download and launch the native PageSift service without external dependencies:
+### 2. Deploy PageSift 1.6.3 Backend (Single Rust Binary or Docker)
+Persistent `--data-dir` is **recommended** (and required for DataGraph history/conflicts/claims, Loop sources, Context storage, and CSS selector memory):
 ```bash
-# Start PageSift service (default port: 3002)
-pagesift serve --port 3002 --no-cache
+# Native binary (with persistent data dir and optional Bearer auth / OCR)
+pagesift serve --host 0.0.0.0 --port 3002 --data-dir ./pagesift-data --api-key "sk-your-key"
+
+# Or via Docker Compose (pinned to ghcr.io/yolow92/pagesift:1.6.3)
+docker compose -f docker-compose.pagesift.yml up -d
 ```
 
 ### 3. Interactive Benchmark Dashboard
-Open `bench/report.html` in any browser to inspect:
+Open `bench/report.html` in any browser to inspect historical baseline benchmarks (recorded on PageSift 1.3.0 vs. Firecrawl v2):
 - **WCXB 511 Full Production Split**: Word-F1 comparisons across 7 categories and logarithmic latency ladders.
 - **Million Soak Test & Stress Matrix**: Full-duration throughput and RSS memory regression curves across 1,000,000 requests.
 

@@ -1,12 +1,13 @@
-# PageSift Dify Plugin (Official 1.0)
+# PageSift Dify Plugin (v0.2.0 — 完整适配 PageSift 1.6.3)
 
-[![Dify Plugin](https://img.shields.io/badge/Dify-Plugin%201.0-blue.svg)](https://dify.ai)
+[![Dify Plugin](https://img.shields.io/badge/Dify-Plugin%200.2.0-blue.svg)](https://dify.ai)
+[![PageSift](https://img.shields.io/badge/PageSift-1.6.3-orange.svg)](https://github.com/YOLOW92/pagesift)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![WCXB 511 Word-F1](https://img.shields.io/badge/WCXB%20511%20Word--F1-0.8750-brightgreen.svg)](bench/BENCHMARK_REPORT.md)
 [![1,000,000 Soak Test](https://img.shields.io/badge/Million%20Soak%20Test-100%25%20PASS-blue.svg)](bench/STRESS_TEST_REPORT.md)
 [![Sub-Millisecond Engine](https://img.shields.io/badge/PageSift-p50%203.3ms-purple.svg)](bench/BENCHMARK_REPORT.md)
 
-基于纯 Rust 内核研发的次时代 **PageSift** 官方 Dify 插件。专为大模型（LLM）RAG 检索增强、网页实时抽取、多格式企业文档解析（PDF、Word、Excel、PPT、CSV）及深层递归爬虫量身打造。具备**亚毫秒级处理延迟**、**超高保真 Markdown 还原**、**单二进制极简部署**与**百万级高频冲刷零泄漏的工程韧性**。
+基于纯 Rust 内核研发的 **PageSift** 官方 Dify 插件（`v0.2.0`），完整适配 **PageSift 1.6.3**。提供 **9 个原生 Dify 工具**，覆盖亚毫秒级网页抓取、全格式企业文档与 373 种源代码解析（含可选 PP-OCRv6）、查询导向自适应爬取、站点地图、批量抓取、**DataGraph**（1.4+ 引文/版本/冲突/声明图谱）、**Loop**（1.5+ 持久化数据源增量同步）以及 **Context**（1.6+ 跨版本 `KnowledgeUnit` 与 Token 预算受控 `ContextPack` 编译）。
 
 ---
 
@@ -30,8 +31,18 @@
 
 ## 🌟 核心特性与架构对比
 
-### 1. 架构理念飞跃：纯 Rust 单二进制 vs 5 容器重型集群
-传统网页抓取与 Markdown 抽取引擎（如 Firecrawl）高度依赖无头浏览器（Headless Chromium）与微服务治理中间件，面临冷启动慢、内存开销庞大（常驻 >3GB）、容易发生 OOM 崩溃及长尾排队等痛点。PageSift 采用自研纯 Rust 零拷贝 HTML 解析器与排版布局重构算法，将完整的爬虫、排版树还原、正文去噪与多格式解析全部收敛为**单个独立的静态二进制程序**。
+### 1. 深度对齐 Dify 三大核心能力支柱（PageSift 1.6.3）
+
+`dify-plugin-pagesift` `v0.2.0` 全面适配 PageSift `1.6.3`，与 Dify 平台在**工具生态集成、企业级 RAG 知识库、可观测与权限治理**三大方向严丝合缝契合：
+
+| Dify 核心能力支柱 | PageSift 1.6.3 + 插件 v0.2.0 协同增强 |
+| :--- | :--- |
+| **多模型与工具集成**<br>（插件 / API / 向量库 / MCP 扩展） | **全栈无缝接入**：① **9 个原生 Dify 插件工具**（`.difypkg`），带强类型 `output_schema` 工作流变量，独家支持 Dify 文件上传解析（`/v2/parse`，MCP 无法替代）；② **Firecrawl v1/v2 与 Jina Reader 零改造兼容 API**，配置 `FIRECRAWL_API_BASE` 即可替换 Dify 知识库爬虫；③ **原生 MCP Server**（`pagesift mcp http --port 3003`），支持 Dify 直接挂载 MCP 扩展；④ 模型无关且提供外部向量库消费位点（`deltas_poll` / `deltas_ack` 防 ABA 增量同步）。 |
+| **RAG 知识库引擎**<br>（文档切分、清洗与高精度检索） | **从清洗切分跃升至可验证证据上下文**：纯 Rust 原生解析网页、PDF（含可选 PP-OCRv6）、新旧 Office、OpenDocument、邮件、压缩包、SQLite/CSV、图片 OCR 与 **373 种源代码**（32+ 语言 AST 按函数/类切分）；内置 Rust 结构化 RAG 切片（`recursive`/`headings`/`fixed_tokens`）与 BM25 `query_filter` 降噪；叠加 **Loop (`sync_source`)** 304/ETag 自适应增量同步、**DataGraph (`query_graph`)** 引文/版本/跨源冲突追踪，以及 **Context (`context_pack`)** 跨版本 `KnowledgeUnit`、`asOf`/`effectiveAt` 时间语义检索与 Token 预算受控 `ContextPack` 编译（强制保留表头、否定限定词与冲突成对证据）。 |
+| **观测与权限治理**<br>（日志追踪、性能成本、标注反馈与权限隔离） | **企业级治理闭环**：① **多租户权限隔离**：支持 PageSift `1.6.1–1.6.3` `[[server.keys]].account` 严格租户/配额/Context/DataGraph 隔离（匿名模式支持 `X-Session-Id`）、零配额鉴权探测（`/v2/crawl/active`）与 4 重客户端 + 服务端 SSRF 防护；② **性能与成本管控**：原生 Prometheus `/metrics`、`--audit-log` 审计追踪、每 Key 的 RPM / 并发 / 原子 RAII 每日页数配额，以及 `ContextPack` 硬 Token 预算避免长页面拖垮大模型成本；③ **溯源审计与标注校准**：每次编译附带 `provenanceManifest` 与冲突标记，并可通过 `context_ingest`（`learn_status` / `learn_update`）将人工标注核验结果写入带漂移守护的在线校准引擎。 |
+
+### 2. 架构理念飞跃：纯 Rust 单二进制 vs 5 容器重型集群
+传统网页抓取与 Markdown 抽取引擎（如 Firecrawl）高度依赖无头浏览器（Headless Chromium）与微服务治理中间件，面临冷启动慢、内存开销庞大（常驻 >3GB）、容易发生 OOM 崩溃及长尾排队等痛点。PageSift 采用纯 Rust 零拷贝 HTML 解析器、原生文档与 OCR 引擎、Loop 增量同步、DataGraph 图谱与 Context 编译内核，将整套企业数据摄取栈收敛为**单个独立的静态二进制程序**。
 
 ```mermaid
 flowchart TD
@@ -44,21 +55,21 @@ flowchart TD
         FC_INGRESS --> FC_DB
     end
 
-    subgraph PageSiftArchitecture ["PageSift 1.3.0 (单静态原生二进制，常驻 75.1 MB)"]
-        PS_CORE["PageSift Core Engine\n(Pure-Rust Event-Loop + Zero-Copy HTML Parser + yolowpdf)"]
+    subgraph PageSiftArchitecture ["PageSift 1.6.3 (单静态原生二进制，基线常驻 ~75 MB)"]
+        PS_CORE["PageSift Core Engine\n(HTTP/Browser 捕获 + yolowpdf/yolowdoc/OCR\n+ Loop 同步 + DataGraph + ContextPack + 多租户配额)"]
     end
 
-    DIFY["Dify 1.0 Plugin Framework"] -->|Sub-millisecond API| PS_CORE
+    DIFY["Dify 平台\n(原生插件 v0.2.0 / Firecrawl API / MCP)"] -->|Sub-millisecond API| PS_CORE
     DIFY -.->|Heavy REST Overhead| FC_INGRESS
 ```
 
-### 2. 核心技术优势
+### 3. 核心技术优势
 - **极速响应**：WCXB 511 全量实测中位延迟仅 **3.30 ms**（Firecrawl 为 1,578.70 ms，**提速 478 倍**）；
 - **极高质量**：511 篇人工标注标准集全量实测 **Word-F1 达 0.8750**（95% 置信区间 `[0.8578, 0.8904]`），全品类大幅领先 Firecrawl（0.7998）；
-- **原生全格式**：不依赖外部 Office 或 LibreOffice，纯 Rust 原生解析 PDF（3.06ms）、DOCX（8.69ms）、XLSX（0.49ms）、PPTX（0.32ms）、CSV（0.40ms）；
+- **全格式文档与源码解析**：不依赖 LibreOffice，纯 Rust 原生解析 PDF（3.06ms）、DOCX（8.69ms）、XLSX（0.49ms）、PPTX（0.32ms）、CSV（0.40ms），以及老版 Office、压缩包、邮件、SQLite、OCR 图片与 373 种源代码；
+- **证据受控上下文与增量同步**：`ContextPack` 在严格 Token 预算内保真表头、否定限定条件与冲突双边证据，结合 Loop 增量同步与 DataGraph 溯源构建高可信企业知识库；
 - **百万级长周期韧性**：连续处理 **1,000,000 次真实抓取请求**，成功率 **100.00%（0 错误）**，全周期 570 秒持续冲刷终态内存仅 75.16 MB，文件描述符净释放 4 个；
-- **微型资源配额**：在 `MemoryMax=256MB` cgroup 约束下峰值仅占用 188.5 MB 零崩溃（Firecrawl 低于 1.5GB 时必触发 OOM 退出）；
-- **原生 Dify 兼容**：严格遵循 `dify-plugin>=0.11.0` 规范，集成逐跳重定向 SSRF 深度校验与 50MB 流式实时预检截断。
+- **企业级治理与安全**：支持 `1.6.1–1.6.3` 多租户 Key/Account 隔离、原子每日页数配额、Prometheus `/metrics`、审计日志、逐跳重定向 SSRF 深度校验与 50MB 流式截断。
 
 ---
 
@@ -167,53 +178,38 @@ PageSift 基于纯 Rust 内核直接解析文档字节流，无需启动外部�
 
 ---
 
-## 🛠️ Dify 工具规格与参数定义 (Tool Reference)
+## 🛠️ Dify 工具规格与参数定义 (9 大工具 — PageSift 1.6.3)
 
-插件提供 3 个原生工具，全部兼容 `dify-plugin>=0.11.0` 标准并支持 LLM 函数调用（Function Calling）：
+本插件提供 **9 个原生工具**，全部符合 `dify-plugin>=0.11.0` 标准，声明强类型 `output_schema` 工作流输出变量，并完整映射 PageSift 1.6.3 结构化错误码（`QUOTA_EXCEEDED`、`ROBOTS_DISALLOWED`、`ACCESS_BARRIER`、`UNSUPPORTED_OPTION`、`SSRF_BLOCKED` 等）与诊断告警（`warnings`）：
 
-### 1. `read_url`（网页转高保真 Markdown）
-- **工具标识**：`yolow92/pagesift/read_url`
-- **参数规格**：
-  | 参数名 | 类型 | 必填 | 默认值 | 说明 |
-  | :--- | :--- | :---: | :---: | :--- |
-  | `url` | `string` | **是** | - | 目标网页的完整 HTTP/HTTPS 地址 |
-  | `only_main_content` | `boolean` | 否 | `true` | 是否剥离导航、页脚与广告，仅保留核心正文 |
-  | `include_metadata` | `boolean` | 否 | `true` | 是否在正文顶部注入标题、作者、发布日期及 OpenGraph 元数据 |
-- **输出格式**：纯文本 Markdown 正文（Text Message）及结构化元数据 JSON（JSON Message）。
-
-### 2. `parse_document`（全格式企业文档解析）
-- **工具标识**：`yolow92/pagesift/parse_document`
-- **参数规格**：
-  | 参数名 | 类型 | 必填 | 默认值 | 说明 |
-  | :--- | :--- | :---: | :---: | :--- |
-  | `file` | `file` | 否 | - | Dify 工作流上传的文件对象（支持 PDF、Word、Excel、PPT、CSV） |
-  | `file_url` | `string` | 否 | - | 目标文档的公网下载链接（受严格 SSRF 与流式 50MB 预检防护） |
-  | `enable_ocr` | `boolean` | 否 | `false` | 是否对无文本层的纯图片扫描版 PDF 启用纯 Rust OCR 引擎 |
-- **注**：`file` 与 `file_url` 至少需提供其一。
-
-### 3. `crawl`（深度网站图爬取）
-- **工具标识**：`yolow92/pagesift/crawl`
-- **参数规格**：
-  | 参数名 | 类型 | 必填 | 默认值 | 说明 |
-  | :--- | :--- | :---: | :---: | :--- |
-  | `url` | `string` | **是** | - | 递归爬取的起始根 URL |
-  | `limit` | `number` | 否 | `5` | 允许抓取并返回的最大页面数量上限 |
-- **输出格式**：多页面 Markdown 内容列表及拓扑链接清单。
+| # | 工具名 | 对应 PageSift 1.6.3 端点 | 核心能力 |
+| :-: | :--- | :--- | :--- |
+| 1 | `read_url` | `POST /v2/scrape` | 亚毫秒级高保真 Markdown、BM25 `query_filter`、Rust RAG 切片（`recursive`/`headings`/`fixed_tokens` 等）、零 LLM CSS 抽取 `extract_schema`（含选择器记忆与改版自愈）、`image_assets`、`engine`（`auto`/`http`/`browser`）、`max_age`、`enable_graph` |
+| 2 | `parse_document` | `POST /v2/parse` | 全格式解析：PDF（标准 `parsers[].mode`: `auto`/`fast`/`ocr`、`max_pages`、`per_page`）、新旧 Office、OpenDocument、RTF/HWP、EPUB/MOBI、邮件、压缩包、SQLite/CSV、图片 OCR、Notebook 与 373 种代码语言；支持 `query_filter`、`chunking`、`source_url`、`enable_graph` |
+| 3 | `crawl` | `POST/GET/DELETE /v2/crawl*` | 查询导向 `query` 爬取、`adaptive` 自适应早停、自动抓取关联 PDF/Office 附件（`attachments`）、路径范围与正则过滤、自动 `?skip=` 分页、超时自动取消、错误汇总与站点级 DataGraph（`/v2/crawl/{id}/graph`） |
+| 4 | `map_site` | `POST /v2/map` | 从 Sitemap、robots.txt 与首页链接极速发现站点 URL 清单，支持 `search` 关键词优先排序 |
+| 5 | `batch_scrape` | `POST/GET/DELETE /v2/batch/scrape*` | 单任务批量并发抓取最多 500 个已知 URL，共享 `query_filter`、`chunking`、`extract_schema`、自动分页与超时取消 |
+| 6 | `context_pack` | `POST /v2/context/{pack,search,action}` | **PageSift 1.6 旗舰能力**：支持无状态或持久化多策略/时间语义检索（`asOf`/`effectiveAt`）、表格表头/限定词/冲突证据 `MustKeep` 约束、Token 预算受控 `ContextPack` 编译（附 `provenanceManifest`）及可选 VOI 有界补采 `Action`（`verify`/`research`/`watch`/`changes`） |
+| 7 | `context_ingest` | `POST/GET /v2/context/{ingest,sync,units,deltas/*,learn}` | 将文档（自动兼容 `read_url`/`parse_document`/`crawl` 输出 JSON）原子入库为跨版本 `KnowledgeUnit`（`ns::CONTEXT`），从 Loop 同步对账、查询单元、防 ABA 增量消费/确认（`deltas_poll`/`deltas_ack`）及只读/更新漂移守护校准（`learn_status`/`learn_update`） |
+| 8 | `sync_source` | `/v2/sources*` | **PageSift 1.5 Loop**：注册持久化数据源、触发 304/ETag 自适应增量同步 Tick、按 `asOf` 查询资源清点/活跃与未验证声明/事实聚类状态视图，及查看有界 `SyncDelta` |
+| 9 | `query_graph` | `/v2/crawl/{id}/graph`、`/v2/graph/{history,conflicts,claims}` | **PageSift 1.4+ DataGraph**：查询爬虫图谱摘要、URL 跨时间版本谱系、跨信源冲突检测与支持 `asOf` 回溯的声明生命周期 |
 
 ---
 
-## 🛡️ 企业级深度安全防护架构 (Enterprise Security)
+## 🛡️ 企业级深度安全防护与多租户隔离 (1.6.1–1.6.3)
 
-为在企业内部和多租户云环境中安全运行，本插件在输入边界与网络流转层建立了 4 重防护网：
+- **零配额消耗鉴权探测**：凭证校验先后探测 `GET /healthz` 与 `GET /v2/crawl/active`（受 PageSift `auth` 中间件保护，同时检出缺 Key 与错 Key，且不扣减 `requests_per_minute` 与 `pages_per_day`）。
+- **1.6.1–1.6.3 多租户隔离**：通过 `api_key` 将任务、配额、DataGraph、Loop 数据源与 Context 严格绑定到租户命名空间（PageSift 1.6.1+ 中 `[[server.keys]].name` 仅作展示标签，多 Key 共享租户需显式配置相同 `[[server.keys]].account`）；无密钥匿名模式可通过可选 `session_id`（`X-Session-Id` 请求头）隔离工作空间状态。
+- **4 重客户端 SSRF 防护**：校验 HTTP/HTTPS 协议白名单、在 DNS 解析前直接阻断私网/回环/CGNAT/云元数据及 IPv4-mapped IPv6（如 `::ffff:127.0.0.1`）字面量、校验全部 DNS 解析结果 IP、并在文件下载中执行逐跳重定向校验与 50MB 流式截断。
 
 ```mermaid
 flowchart TD
     REQ["外部输入 URL (网页或文档链接)"] --> PROTO_CHECK{"协议白名单校验"}
     PROTO_CHECK -->|非法协议 (file://, ftp://)| BLOCK_PROTO["403 抛出 PageSiftSSRFError (阻断)"]
-    PROTO_CHECK -->|HTTP / HTTPS| DNS_RESOLVE["DNS 二次解析探测目标 IP"]
+    PROTO_CHECK -->|HTTP / HTTPS| DNS_RESOLVE["字面量 IP + DNS 二次解析校验"]
     
     DNS_RESOLVE --> IP_CHECK{"目标 IP 判定"}
-    IP_CHECK -->|RFC 1918 私网 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)| BLOCK_IP["403 拦截私网访问"]
+    IP_CHECK -->|RFC 1918 / CGNAT / IPv4-mapped IPv6| BLOCK_IP["403 拦截私网访问"]
     IP_CHECK -->|本地回环 (127.0.0.0/8, ::1)| BLOCK_LOOP["403 拦截回环探测"]
     IP_CHECK -->|云元数据 (169.254.169.254, RFC 3927)| BLOCK_META["403 拦截云凭证窃取"]
     IP_CHECK -->|合法公网 IP| STREAM_CONN["建立 HTTP 连接 (allow_redirects=False)"]
@@ -224,7 +220,7 @@ flowchart TD
     HOP_CHECK -->|合法公网重定向| STREAM_CONN
     
     REDIRECT -->|否| CL_CHECK{"Content-Length > 50MB?"}
-    CL_CHECK -->|是| BLOCK_LEN["422 提前拒绝超大文件传输"]
+    CL_CHECK -->|是| BLOCK_LEN["413 提前拒绝超大文件传输"]
     CL_CHECK -->|否| STREAM_READ["64KB 块流式动态累加读取"]
     
     STREAM_READ --> OVERFLOW{"已接收字节 > 50MB?"}
@@ -236,44 +232,47 @@ flowchart TD
 
 ## 🔄 生产级 Dify 工作流 DSL 实践 (Workflows)
 
-仓库 `bench/dify_workflows/` 预置了 4 套符合 Dify 1.0 规范的端到端生产工作流配置：
+仓库 `bench/dify_workflows/` 预置了 7 套符合 Dify 1.0 规范的端到端工作流配置：
 
-1. **`W01_pagesift_web_qa.yml`（亚毫秒智能网页问答）**：
-   - 流程：`User Input` $\to$ `read_url` $\to$ `LLM Synthesis` $\to$ `Answer`；
-   - 场景：实时拉取最新新闻、技术博客并进行结构化总结，端到端耗时大幅缩短 80%。
-2. **`W02_metadata_routing.yml`（知识库元数据条件路由）**：
-   - 流程：`read_url` 提取 OpenGraph 元数据 $\to$ 针对发布时间、品类标签与作者进行智能分支分流。
-3. **`W03_pagesift_document_qa.yml`（企业全格式文档深度问答）**：
-   - 流程：支持用户在对话框直接上传 PDF、Excel、Word $\to$ `parse_document` 秒级提取表格与大纲 $\to$ 送入 LLM 上下文生成报告。
-4. **`W10_error_fallback_recovery.yml`（优雅容错与降级恢复）**：
-   - 流程：在目标网站遭遇反爬封禁、超时或 SSRF 阻断时，捕获异常状态码并优雅降级至备用搜索通道。
+1. **`W01_pagesift_web_qa.yml`（亚毫秒智能网页问答）**：`User Input` $\to$ `read_url` $\to$ `LLM Synthesis` $\to$ `Answer`。
+2. **`W02_metadata_routing.yml`（知识库元数据条件路由）**：`read_url` 提取 OpenGraph 元数据并按条件分支路由。
+3. **`W03_pagesift_document_qa.yml`（企业全格式文档深度问答）**：上传 PDF/Office/代码 $\to$ `parse_document` $\to$ LLM 总结问答。
+4. **`W04_pagesift_context_pack_rag.yml`（1.6.3 ContextPack 证据受控问答）**：`context_pack` 在 Token 预算内编译带 `provenanceManifest` 与冲突成对证据的上下文 $\to$ 严格溯源 LLM 回答。
+5. **`W05_pagesift_loop_sync_pipeline.yml`（1.6.3 Loop 增量同步与 Context 对账流水线）**：`sync_source (run)` 增量拉取变更 $\to$ `context_ingest (sync)` 刷新持久化知识单元索引。
+6. **`W06_pagesift_graph_conflict_audit.yml`（1.6.3 自适应爬取与跨源冲突审计）**：`crawl (adaptive + enable_graph)` $\to$ `query_graph (conflicts)` 发现跨页/跨源价格与条款冲突。
+7. **`W10_error_fallback_recovery.yml`（优雅容错与降级恢复）**：捕获反爬、超时或 SSRF 异常并优雅降级。
 
 ---
 
 ## 📦 安装部署与快速开始 (Installation & Quick Start)
 
 ### 1. 离线安装 Dify 插件包 (.difypkg)
-本仓库 `dist/` 目录已打包官方标准插件安装包，您可以直接在 Dify Web 界面中导入：
-- **插件包文件**：`dist/pagesift-0.1.0.difypkg` (体积约 36.8 KB)
-- **SHA-256 校验文件**：`dist/pagesift-0.1.0.difypkg.sha256`（同时在 GitHub Release 页面提供）
+本仓库 `dist/` 目录提供打包好的标准插件包，可直接导入 Dify Web 控制台：
+- **插件包文件**：`dist/pagesift-0.2.0.difypkg`
+- **SHA-256 校验文件**：`dist/pagesift-0.2.0.difypkg.sha256`
 
 #### 安装步骤：
 1. 登录您的 Dify 管理控制台，进入 **Plugins (插件管理)** 页面；
 2. 点击右上角 **Install from file**；
-3. 上传 `pagesift-0.1.0.difypkg` 并完成安装；
-4. 进入插件凭证配置（Credentials），填写您的 PageSift 服务端点：
+3. 上传 `dist/pagesift-0.2.0.difypkg` 并完成安装；
+4. 进入插件凭证配置（Credentials），填写您的 PageSift 1.6.3 服务端点：
    - `base_url`: `http://localhost:3002`（或自建 PageSift 服务的局域网 IP / 容器名）
-   - `api_key`: 若服务启用了鉴权则填写 Bearer Token，未启用可留空。
+   - `api_key`: 服务端启用鉴权时的 Bearer Token（自动隔离租户配额、DataGraph、Loop 与 Context）
+   - `session_id`: 无密钥匿名模式下的可选 `X-Session-Id` 隔离标识
+   - `default_timeout`: 默认请求超时秒数（1–300，默认 `30`）
 
-### 2. 部署 PageSift 服务端 (纯 Rust 单二进制)
-PageSift 提供开箱即用的静态编译二进制程序，零外部依赖：
+### 2. 部署 PageSift 1.6.3 服务端 (单二进制 / Docker)
+使用 DataGraph、Loop 数据源、Context 持久化与选择器记忆时，请务必指定持久化 `--data-dir`（勿启用 `--no-cache`）：
 ```bash
-# 启动本地 PageSift 服务 (默认监听 3002 端口)
-pagesift serve --port 3002 --no-cache
+# 启动本地 PageSift 1.6.3 服务（持久化数据目录 + 可选鉴权 / --ocr）
+pagesift serve --host 0.0.0.0 --port 3002 --data-dir ./pagesift-data --api-key "sk-your-key"
+
+# 或使用 Docker Compose（镜像已锁定 ghcr.io/yolow92/pagesift:1.6.3）
+docker compose -f docker-compose.pagesift.yml up -d
 ```
 
 ### 3. 查看交互式可视化评测看板
-本地直接使用任意浏览器打开 `bench/report.html`，即可交互式查看：
+本地直接使用任意浏览器打开 `bench/report.html`，即可交互式查看基线评测数据（基于 PageSift 1.3.0 vs Firecrawl v2 实测）：
 - **Tab 1: WCXB 511 全量生产基准**（7 大品类 Word-F1 并列对比柱状图、对数坐标延迟阶梯）；
 - **Tab 2: 百万测试与 X1-X7 极限压测**（1,000,000 次请求全周期 QPS 与 RSS 拟合轨迹图、并发阶梯对比）。
 

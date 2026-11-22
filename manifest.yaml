@@ -1,13 +1,13 @@
-version: 0.1.0
+version: 0.2.0
 type: plugin
 author: yolow92
 name: pagesift
 label:
-  en_US: PageSift Web & Document Ingestion
-  zh_Hans: PageSift 极速文档与网页抽取
+  en_US: PageSift Web, Document & Context Engine
+  zh_Hans: PageSift 极速网页、文档与上下文引擎
 description:
-  en_US: Sub-millisecond web scraping and zero-dependency document parsing (PDF, Office, CSV) powered by pure-Rust PageSift.
-  zh_Hans: 基于纯 Rust PageSift 的亚毫秒级网页与全格式文档（PDF、Office、CSV）高保真提取引擎。
+  en_US: Sub-millisecond web scraping, full-format document/code parsing (PDF, OCR, Office, Archives, 373 languages), adaptive crawling, DataGraph, Loop sync, and token-budgeted ContextPack powered by pure-Rust PageSift 1.6.3.
+  zh_Hans: 基于纯 Rust PageSift 1.6.3 的亚毫秒级网页抓取、全格式文档与代码解析（PDF/OCR/Office/压缩包/373种语言）、查询导向自适应爬取、DataGraph 图谱、Loop 增量同步与 ContextPack 上下文编译引擎。
 icon: icon.svg
 tags:
   - search
@@ -25,7 +25,7 @@ plugins:
   tools:
     - provider/pagesift.yaml
 meta:
-  version: 0.1.0
+  version: 0.2.0
   minimum_dify_version: "0.11.0"
   arch:
     - amd64
