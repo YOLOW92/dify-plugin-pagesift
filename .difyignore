@@ -10,6 +10,7 @@ __pycache__/
 .coverage
 htmlcov/
 tests/
+pytest.ini
 
 # Benchmarks & Corpus
 bench/
@@ -28,6 +29,8 @@ build/
 # Git & IDEs
 .git/
 .github/
+.gitignore
+.difyignore
 .idea/
 .vscode/
 .DS_Store
